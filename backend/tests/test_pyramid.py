@@ -29,6 +29,7 @@ CHANNEL = crit("Channel", 4, "host_artifact", selection="selection_channel", rou
 ERRORCODE = Criterion("selection_status", "errorCode", (), ("Success",), "string", 4, "host_artifact", "high", None, False, True)
 KEYWORD = Criterion("keywords", None, (), ("touch",), "string", 4, "keyword", "low")
 MFA_USED = crit("additionalEventData.MFAUsed", 4, "host_artifact")
+EVENTID = crit("EventID", 4, "host_artifact", selection="selection_event", routing=True)
 
 
 def AND(*children, selection=None):
@@ -81,6 +82,11 @@ def ir(root, level: str | None = None) -> RuleIR:
         ("D2: artifact AND keyword is not a chain (keyword bottleneck drags confidence to low)", AND(CMD, KEYWORD), 4, "low"),
         ("D2: cloud action AND attacker-controllable qualifier still escalates", AND(CLOUD, MFA_USED), 6, "medium"),
         ("D2: outcome branch never blocks escalation of two real branches", AND(CMD, CLOUD, ERRORCODE), 6, "medium"),
+        ("allowlist in disguise: EventID AND NOT ip list -> the NOT is primary, ip tier, medium", AND(EVENTID, NOT(OR(IP, IP))), 2, "medium"),
+        ("allowlist in disguise: outcome AND NOT cmd -> tier 4, medium", AND(ERRORCODE, NOT(CMD)), 4, "medium"),
+        ("allowlist in disguise: two NOTs both primary, min", AND(EVENTID, NOT(CMD), NOT(DOMAIN)), 3, "medium"),
+        ("a real positive branch keeps the NOT an excluded filter", AND(EVENTID, CMD, NOT(IP)), 4, "high"),
+        ("nested allowlist AND inside OR carries its tier", OR(HASH, AND(EVENTID, NOT(DOMAIN))), 3, "medium"),
     ],
 )
 def test_resolution(name: str, root, tier: int, confidence: str) -> None:
@@ -119,6 +125,20 @@ def test_bare_not_advisory() -> None:
     result = classify(ir(NOT(OR(IP, IP))))
     assert [a.kind for a in result.advisories if a.kind == "bare_not"] == ["bare_not"]
     assert "allowlist" in result.steps[0]
+
+
+def test_allowlist_in_disguise_is_scored_and_advised_not_filtered() -> None:
+    result = classify(ir(AND(EVENTID, NOT(OR(IP, IP)), selection=None)))
+    kinds = [a.kind for a in result.advisories]
+    assert "bare_not" in kinds and "filter" not in kinds  # the NOT is scored, so it is not an excluded filter
+    assert result.tier == 2 and result.confidence == "medium"
+    assert "allowlist" in result.steps[0] and "primary logic" in result.steps[0]
+
+
+def test_allowlist_in_disguise_does_not_trigger_for_real_positives() -> None:
+    result = classify(ir(AND(EVENTID, CMD, NOT(IP))))
+    kinds = [a.kind for a in result.advisories]
+    assert "filter" in kinds and "bare_not" not in kinds
 
 
 @pytest.mark.parametrize(

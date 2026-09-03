@@ -45,7 +45,7 @@ CLOUD_PRODUCTS = frozenset({"aws", "azure", "gcp", "google_cloud", "google_works
 CLOUD_ACTION_FIELDS = frozenset({"eventname", "operationname", "eventtype", "event_type", "action", "operation", "activity", "protopayload.methodname", "method_name"})
 
 # Fixed by the log source, not attacker-controllable: an AND'd branch on one of these is not an evasion point.
-ROUTING_FIELDS = frozenset({"eventsource", "channel", "provider_name", "recordtype"})
+ROUTING_FIELDS = frozenset({"eventsource", "channel", "provider_name", "recordtype", "eventid", "event_id"})
 # Outcome/status of an action rather than the action itself. Still floors the tier, but is not
 # behavioral evidence for TTP escalation (decision D2, 2026-09-03).
 OUTCOME_FIELDS = frozenset({

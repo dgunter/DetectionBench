@@ -96,9 +96,36 @@ def _tier_label(tier: int) -> str:
     return f"tier {tier} ({TIER_NAMES[tier]})"
 
 
+def _is_not(node: Node) -> bool:
+    return isinstance(node, Boolean) and node.op == "not"
+
+
+def _context_only(node: Node) -> bool:
+    """True when every leaf under ``node`` is a routing or outcome/status field: log-source context, not an indicator."""
+    leaves = list(iter_criteria(node))
+    return bool(leaves) and all(leaf.routing or leaf.outcome for leaf in leaves)
+
+
 def is_filter(child: Node, siblings: tuple[Node, ...]) -> bool:
-    """A NOT is an exclusion filter when a non-negated sibling exists under the same AND."""
-    return isinstance(child, Boolean) and child.op == "not" and any(not (isinstance(s, Boolean) and s.op == "not") for s in siblings)
+    """A NOT is an exclusion filter when a non-negated sibling exists under the same AND.
+
+    Exception (allowlist in disguise): when every non-negated sibling is routing/outcome
+    context only (``EventID: 4688 and not filter_known_images``), the negations are the
+    rule's real logic, so none of them is a filter; each resolves as a bare NOT and the
+    usual AND-min applies (the same treatment as an all-negated AND).
+    """
+    if not _is_not(child):
+        return False
+    positives = [s for s in siblings if not _is_not(s)]
+    return bool(positives) and not all(_context_only(p) for p in positives)
+
+
+def negations_are_primary(node: Boolean) -> bool:
+    """An AND with >= 1 NOT whose positive branches are all routing/outcome context."""
+    if node.op != "and":
+        return False
+    positives = [c for c in node.children if not _is_not(c)]
+    return any(_is_not(c) for c in node.children) and bool(positives) and all(_context_only(p) for p in positives)
 
 
 def resolve(node: Node) -> Resolution:
@@ -143,6 +170,9 @@ def _resolve_and(node: Boolean) -> Resolution:
     categories = frozenset().union(*(r.categories for r in resolved))
     name = _describe(node)
     steps = [f"{name}: AND -> min of {len(resolved)} required branch(es) = {_tier_label(floor)} (attacker only needs to break the cheapest required condition)"]
+    if negations_are_primary(node):
+        context = ", ".join(_describe(c) for c in positives if not _is_not(c))
+        steps.insert(0, f"{name}: the non-negated branch(es) ({context}) are routing/outcome context only, so the negation(s) are the primary logic, not exclusion filters: a negated list behaves as an allowlist; scored at the negated indicators' tier, confidence medium, durability likely understated")
     if filters:
         steps.append(f"{len(filters)} exclusion filter(s) excluded from scoring: " + ", ".join(_filter_name(f) for f in filters))
 
@@ -197,6 +227,15 @@ def _collect_filters(node: Node, out: list[tuple[str, Resolution]]) -> None:
         _collect_filters(c, out)
 
 
+def _collect_allowlist_ands(node: Node, out: list[str]) -> None:
+    if isinstance(node, Criterion):
+        return
+    if negations_are_primary(node):
+        out.append(_describe(node))
+    for c in node.children:
+        _collect_allowlist_ands(c, out)
+
+
 def _collect_routing(node: Node, out: list[str]) -> None:
     if isinstance(node, Criterion):
         return
@@ -239,6 +278,14 @@ def advisories_for(ir: RuleIR, resolution: Resolution) -> tuple[Advisory, ...]:
         out.append(Advisory(
             "bare_not",
             "The whole rule is a negation: the negated indicator list behaves as an allowlist, so its durability is likely understated by the indicator tier.",
+        ))
+    allowlists: list[str] = []
+    _collect_allowlist_ands(ir.root, allowlists)
+    for branch in allowlists:
+        out.append(Advisory(
+            "bare_not",
+            f"{branch}: its non-negated branches are routing/outcome context only, so the negations are the primary logic (an allowlist in disguise); durability is likely understated by the indicator tier.",
+            {"branch": branch},
         ))
 
     level = (ir.metadata.level or "").lower()
