@@ -77,6 +77,7 @@ def test_imphash_note_and_routing_flag() -> None:
     cls = classify_leaf("Hashes", "string", ("IMPHASH=abc",), ("contains",), WIN_PROC)
     assert cls.note and "imphash" in cls.note.lower()
     assert classify_leaf("Provider_Name", "string", ("x",), (), WIN_PROC).routing is True
+    assert classify_leaf("EventID", "string", ("4688",), (), WIN_PROC).routing is True
     assert classify_leaf("CommandLine", "string", ("x",), (), WIN_PROC).routing is False
 
 
