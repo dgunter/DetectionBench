@@ -23,5 +23,15 @@
     "id": "relational_fieldref_delete_own_image",
     "label": "Relational (fieldref)",
     "blurb": "Field-to-field comparison with no static indicator at all."
+  },
+  {
+    "id": "tool_rubeus_pe_metadata",
+    "label": "Tool (PE metadata)",
+    "blurb": "Rubeus by OriginalFileName/Description, not just its path: evading costs a binary patch."
+  },
+  {
+    "id": "ttp_dump64_renamed_procdump",
+    "label": "TTP (behavioral chain)",
+    "blurb": "Renamed procdump in the Visual Studio folder: two AND'd artifact categories, no cheap link."
   }
 ]

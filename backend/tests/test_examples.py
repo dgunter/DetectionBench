@@ -10,11 +10,14 @@ def test_examples_load_with_titles_and_yaml():
         "domain_dns_xmr_mining",
         "artifact_sysnative_filters",
         "relational_fieldref_delete_own_image",
+        "tool_rubeus_pe_metadata",
+        "ttp_dump64_renamed_procdump",
     ]
     by_id = {e.id: e for e in examples}
     assert by_id["hash_imphash_sharpevtmute"].title == "HackTool - SharpEvtMute DLL Load"
     assert "condition:" in by_id["ip_bare_not_zeek_rdp"].yaml
     assert all(e.label and e.blurb for e in examples)
+    assert by_id["tool_rubeus_pe_metadata"].title == "HackTool - Rubeus Execution"
 
 
 def test_examples_endpoint_requires_session(client):
@@ -25,5 +28,5 @@ def test_examples_endpoint_returns_rules(authed_client):
     r = authed_client.get("/api/examples")
     assert r.status_code == 200
     body = r.json()
-    assert len(body) == 5
+    assert len(body) == 7
     assert set(body[0]) == {"id", "label", "blurb", "title", "yaml"}
