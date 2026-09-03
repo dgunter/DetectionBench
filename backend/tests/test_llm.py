@@ -25,8 +25,8 @@ class FakeClient:
         self.calls.append({"system": system, "user": user, "model": model})
         return LlmReply(self.text, 10, 5)
 
-    def complete_json(self, *, system, user, schema, max_tokens=8192, model=None):
-        self.calls.append({"system": system, "user": user, "schema": schema, "model": model})
+    def complete_json(self, *, system, user, schema, max_tokens=8192, model=None, effort=None, timeout=None):
+        self.calls.append({"system": system, "user": user, "schema": schema, "model": model, "effort": effort, "timeout": timeout})
         return self.data
 
     def stream(self, *, system, user, max_tokens=4096, model=None):
@@ -225,6 +225,15 @@ def test_candidates_are_rescored_through_pipeline(llm):
     body = llm.post("/api/llm/candidates", json={"rule": RULE}).json()
     assert [c["verdict"] for c in body["candidates"]] == ["preserved", "parse_failed"]
     assert body["candidates"][0]["strategy"] == "tighter filter"
+    # Candidates run at reduced effort with a longer ceiling; the other actions keep the defaults.
+    assert fake.calls[-1]["effort"] == "medium" and fake.calls[-1]["timeout"] == 120.0
+
+
+def test_suggest_attack_keeps_default_effort_and_timeout(llm):
+    fake = FakeClient(data={"techniques": []})
+    use(fake, None)
+    assert llm.post("/api/llm/suggest-attack", json={"rule": RULE}).status_code == 200
+    assert fake.calls[-1]["effort"] is None and fake.calls[-1]["timeout"] is None
 
 
 def test_candidates_unavailable_without_pipeline(llm):

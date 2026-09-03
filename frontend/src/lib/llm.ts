@@ -80,6 +80,9 @@ export function describeLlmError(status: number, code: string | undefined, messa
       return "The model took too long to answer. Try again."
     case 401:
       return "Your session expired. Sign in again."
+    case 500:
+    case 502:
+      return "The connection to the server dropped mid-request (it may have just restarted). Try again."
     default:
       return "The AI request failed."
   }

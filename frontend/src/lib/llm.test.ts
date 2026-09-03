@@ -27,7 +27,8 @@ describe("describeLlmError", () => {
     expect(describeLlmError(503, "overloaded", "busy")).toBe("busy")
     expect(describeLlmError(429, "budget_exhausted", undefined)).toMatch(/budget/)
     expect(describeLlmError(504, undefined, undefined)).toMatch(/too long/)
-    expect(describeLlmError(500, undefined, undefined)).toBe("The AI request failed.")
+    expect(describeLlmError(502, undefined, undefined)).toMatch(/dropped mid-request/)
+    expect(describeLlmError(418, undefined, undefined)).toBe("The AI request failed.")
   })
 })
 
