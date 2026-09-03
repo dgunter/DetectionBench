@@ -1,0 +1,27 @@
+[
+  {
+    "id": "hash_imphash_sharpevtmute",
+    "label": "Hash (imphash)",
+    "blurb": "A single import-hash indicator: cheapest tier to evade, yet level: high."
+  },
+  {
+    "id": "ip_bare_not_zeek_rdp",
+    "label": "IP (negated list)",
+    "blurb": "Bare NOT over private CIDRs: an allowlist, scored at the IP tier with a caveat."
+  },
+  {
+    "id": "domain_dns_xmr_mining",
+    "label": "Domain (DNS)",
+    "blurb": "Mining-pool hostnames on a DNS query field; status: stable."
+  },
+  {
+    "id": "artifact_sysnative_filters",
+    "label": "Artifact + filters",
+    "blurb": "OR/AND/NOT with two exclusion filters: each filter is an evasion surface."
+  },
+  {
+    "id": "relational_fieldref_delete_own_image",
+    "label": "Relational (fieldref)",
+    "blurb": "Field-to-field comparison with no static indicator at all."
+  }
+]
