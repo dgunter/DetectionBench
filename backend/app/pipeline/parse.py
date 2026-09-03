@@ -78,6 +78,8 @@ def load_raw_documents(text: str) -> list[Any]:
         docs = [d for d in yaml.safe_load_all(text) if d is not None]
     except yaml.YAMLError as exc:
         raise ParseError("invalid_yaml", "the text is not valid YAML", detail=_yaml_error_detail(exc)) from exc
+    except ValueError as exc:  # PyYAML raises bare ValueError for impossible timestamps like 2020-13-45
+        raise ParseError("invalid_yaml", "the text is not valid YAML", detail=f"invalid value: {exc}") from exc
     if not docs:
         raise ParseError("empty", "no rule found: paste a Sigma rule to classify")
     if len(docs) > 1:

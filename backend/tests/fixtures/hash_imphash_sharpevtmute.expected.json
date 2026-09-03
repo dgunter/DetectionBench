@@ -50,5 +50,41 @@
     "outline": [
       "Hashes contains 'IMPHASH=330768A4F172E10ACB6287B87289D83B'"
     ]
+  },
+  "lint": {
+    "value": "clean",
+    "checks": {
+      "title": "pass",
+      "id": "pass",
+      "status": "pass",
+      "description": "pass",
+      "references": "pass",
+      "level": "pass",
+      "falsepositives": "pass",
+      "logsource": "pass",
+      "selections": "pass",
+      "attack_techniques": "pass",
+      "attack_tactics": "pass",
+      "attack_software_groups": "pass",
+      "date": "pass"
+    },
+    "findings": []
+  },
+  "attack": {
+    "techniques": [
+      [
+        "T1685.001",
+        "valid",
+        null
+      ]
+    ],
+    "tactics": [
+      [
+        "defense-impairment",
+        "valid"
+      ]
+    ],
+    "unvalidated": [],
+    "findings": []
   }
 }
