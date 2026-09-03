@@ -21,16 +21,16 @@ class FakeClient:
         self.data = data or {}
         self.calls: list[dict] = []
 
-    def complete(self, *, system, user, max_tokens=4096):
-        self.calls.append({"system": system, "user": user})
+    def complete(self, *, system, user, max_tokens=4096, model=None):
+        self.calls.append({"system": system, "user": user, "model": model})
         return LlmReply(self.text, 10, 5)
 
-    def complete_json(self, *, system, user, schema, max_tokens=8192):
-        self.calls.append({"system": system, "user": user, "schema": schema})
+    def complete_json(self, *, system, user, schema, max_tokens=8192, model=None):
+        self.calls.append({"system": system, "user": user, "schema": schema, "model": model})
         return self.data
 
-    def stream(self, *, system, user, max_tokens=4096):
-        self.calls.append({"system": system, "user": user})
+    def stream(self, *, system, user, max_tokens=4096, model=None):
+        self.calls.append({"system": system, "user": user, "model": model})
         yield from self.text.split(" ")
 
 
@@ -127,11 +127,11 @@ def test_resolve_model_gating():
 
     s = get_settings()
     assert resolve_model(s, "opus") == "claude-opus-5"
+    assert resolve_model(s, "sonnet") == "claude-sonnet-5"
+    assert resolve_model(s, "fable") == "claude-fable-5-1"
     with pytest.raises(LlmError) as e:
-        resolve_model(s, "sonnet")
-    assert e.value.http_status == 400
-    with pytest.raises(LlmError):
         resolve_model(s, "gpt")
+    assert e.value.http_status == 400 and e.value.code == "unknown_model"
 
 
 # --- routes -----------------------------------------------------------------
@@ -143,7 +143,7 @@ def test_llm_routes_require_session(client):
 
 
 def test_models_and_budget(llm):
-    assert llm.get("/api/llm/models").json() == [{"key": "opus", "enabled": True}, {"key": "sonnet", "enabled": False}, {"key": "fable", "enabled": False}]
+    assert llm.get("/api/llm/models").json() == [{"key": "opus", "enabled": True}, {"key": "sonnet", "enabled": True}, {"key": "fable", "enabled": True}]
     assert llm.get("/api/llm/budget").json()["remaining"] == hourly_budget.limit
 
 
@@ -191,8 +191,8 @@ def test_explain_stream_wall_clock_guard(llm, monkeypatch):
 
 def test_explain_stream_limits_still_fail_before_streaming(llm):
     use(FakeClient("ok"), None)
-    r = llm.post("/api/llm/explain/stream", json={"rule": RULE, "model": "sonnet"})
-    assert r.status_code == 400 and r.json()["error"]["code"] == "model_not_available"
+    r = llm.post("/api/llm/explain/stream", json={"rule": RULE, "model": "gpt"})
+    assert r.status_code == 400 and r.json()["error"]["code"] == "unknown_model"
     assert llm.post("/api/llm/explain/stream", json={"rule": RULE}).status_code == 200
     for _ in range(ip_limiter.limit):
         ip_limiter.allow("testclient")
@@ -233,10 +233,30 @@ def test_candidates_unavailable_without_pipeline(llm):
     assert r.status_code == 503 and r.json()["error"]["code"] == "rescoring_unavailable"
 
 
-def test_disabled_model_rejected(llm):
+def test_unknown_model_rejected(llm):
     use(FakeClient(), None)
-    r = llm.post("/api/llm/explain", json={"rule": RULE, "model": "sonnet"})
-    assert r.status_code == 400 and r.json()["error"]["code"] == "model_not_available"
+    r = llm.post("/api/llm/explain", json={"rule": RULE, "model": "haiku"})
+    assert r.status_code == 400 and r.json()["error"]["code"] == "unknown_model"
+
+
+@pytest.mark.parametrize("key,model_id", [("opus", "claude-opus-5"), ("sonnet", "claude-sonnet-5"), ("fable", "claude-fable-5-1")])
+def test_model_key_reaches_the_client_and_never_the_response(llm, key, model_id):
+    fake = FakeClient("ok")
+    use(fake, None)
+    r = llm.post("/api/llm/explain", json={"rule": RULE, "model": key})
+    assert r.status_code == 200
+    assert fake.calls[-1]["model"] == model_id  # resolved server-side
+    assert r.json()["model"] == key and model_id not in r.text  # the frontend only ever sees the key
+
+
+def test_disabled_model_key_is_rejected(monkeypatch):
+    from app.config import get_settings
+    from app.llm import client as client_module
+
+    monkeypatch.setitem(client_module.MODEL_KEYS, "sonnet", None)
+    with pytest.raises(LlmError) as info:
+        client_module.resolve_model(get_settings(), "sonnet")
+    assert info.value.code == "model_not_available"
 
 
 @pytest.mark.parametrize("err,status", [

@@ -17,9 +17,13 @@ import anthropic
 
 from app.config import Settings
 
-# Model keys the UI may send. Only Opus is wired for v1; the others are shown
-# as "soon" in the UI and rejected here so the flag flip is a one-line change.
-MODEL_KEYS: dict[str, str | None] = {"opus": "claude-opus-5", "sonnet": None, "fable": None}
+# Model keys the UI may send, resolved to model IDs here so the frontend never
+# sees an ID. A None value disables a key (the UI shows it as "soon").
+MODEL_KEYS: dict[str, str | None] = {
+    "opus": "claude-opus-5",
+    "sonnet": "claude-sonnet-5",
+    "fable": "claude-fable-5-1",
+}
 
 
 class LlmError(Exception):
@@ -41,11 +45,13 @@ class LlmReply:
 
 
 class LlmClient(Protocol):
-    def complete(self, *, system: str, user: str, max_tokens: int = 4096) -> LlmReply: ...
+    """``model`` is a resolved model ID (from ``resolve_model``); None means the client's default."""
 
-    def complete_json(self, *, system: str, user: str, schema: dict[str, Any], max_tokens: int = 8192) -> dict[str, Any]: ...
+    def complete(self, *, system: str, user: str, max_tokens: int = 4096, model: str | None = None) -> LlmReply: ...
 
-    def stream(self, *, system: str, user: str, max_tokens: int = 4096) -> Iterator[str]:
+    def complete_json(self, *, system: str, user: str, schema: dict[str, Any], max_tokens: int = 8192, model: str | None = None) -> dict[str, Any]: ...
+
+    def stream(self, *, system: str, user: str, max_tokens: int = 4096, model: str | None = None) -> Iterator[str]:
         """Yield text deltas as they arrive. Raises LlmError, possibly mid-stream."""
         ...
 
@@ -89,16 +95,16 @@ class AnthropicLlmClient:
         if response.stop_reason == "refusal":
             raise LlmError("refused", "The model declined to answer this request.", 422)
 
-    def _create(self, **kwargs: Any) -> anthropic.types.Message:
+    def _create(self, *, model: str | None = None, **kwargs: Any) -> anthropic.types.Message:
         with self._mapped_errors():
-            response = self._client.messages.create(model=self._model, **kwargs)
+            response = self._client.messages.create(model=model or self._model, **kwargs)
         self._check_refusal(response)
         return response
 
-    def stream(self, *, system: str, user: str, max_tokens: int = 4096) -> Iterator[str]:
+    def stream(self, *, system: str, user: str, max_tokens: int = 4096, model: str | None = None) -> Iterator[str]:
         with self._mapped_errors():
             with self._client.messages.stream(
-                model=self._model,
+                model=model or self._model,
                 max_tokens=max_tokens,
                 system=[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
                 messages=[{"role": "user", "content": user}],
@@ -111,16 +117,18 @@ class AnthropicLlmClient:
     def _text(response: anthropic.types.Message) -> str:
         return "".join(block.text for block in response.content if block.type == "text").strip()
 
-    def complete(self, *, system: str, user: str, max_tokens: int = 4096) -> LlmReply:
+    def complete(self, *, system: str, user: str, max_tokens: int = 4096, model: str | None = None) -> LlmReply:
         response = self._create(
+            model=model,
             max_tokens=max_tokens,
             system=[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
             messages=[{"role": "user", "content": user}],
         )
         return LlmReply(self._text(response), response.usage.input_tokens, response.usage.output_tokens)
 
-    def complete_json(self, *, system: str, user: str, schema: dict[str, Any], max_tokens: int = 8192) -> dict[str, Any]:
+    def complete_json(self, *, system: str, user: str, schema: dict[str, Any], max_tokens: int = 8192, model: str | None = None) -> dict[str, Any]:
         response = self._create(
+            model=model,
             max_tokens=max_tokens,
             system=[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
             messages=[{"role": "user", "content": user}],

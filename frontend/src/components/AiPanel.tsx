@@ -18,8 +18,8 @@ import {
 
 const MODELS: { id: ModelKey; label: string; enabled: boolean }[] = [
   { id: "opus", label: "Claude Opus", enabled: true },
-  { id: "sonnet", label: "Claude Sonnet", enabled: false },
-  { id: "fable", label: "Claude Fable", enabled: false },
+  { id: "sonnet", label: "Claude Sonnet", enabled: true },
+  { id: "fable", label: "Claude Fable", enabled: true },
 ]
 
 const ACTIONS: { id: LlmAction; label: string }[] = [
