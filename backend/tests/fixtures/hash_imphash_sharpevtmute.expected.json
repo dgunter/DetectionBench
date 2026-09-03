@@ -1,0 +1,54 @@
+{
+  "parse": {
+    "condition": "selection",
+    "selections": [
+      "selection"
+    ],
+    "root_kind": "criterion",
+    "root_op": null,
+    "metadata_errors": [],
+    "criteria": [
+      {
+        "selection": "selection",
+        "field": "Hashes",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 1,
+        "category": "hash",
+        "confidence": "high"
+      }
+    ]
+  },
+  "pyramid": {
+    "tier": 1,
+    "value": "Hash values",
+    "confidence": "high",
+    "provenance": "deterministic:ast",
+    "categories": [
+      "hash"
+    ],
+    "advisory_kinds": [
+      "level_vs_tier"
+    ]
+  },
+  "scope": {
+    "logsource_text": "windows image_load events",
+    "fields": [
+      "Hashes"
+    ],
+    "criteria_count": 1,
+    "filter_count": 0,
+    "selections": [
+      {
+        "name": "selection",
+        "role": "primary",
+        "criteria": 1
+      }
+    ],
+    "outline": [
+      "Hashes contains 'IMPHASH=330768A4F172E10ACB6287B87289D83B'"
+    ]
+  }
+}

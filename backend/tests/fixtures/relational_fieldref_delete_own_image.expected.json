@@ -1,0 +1,52 @@
+{
+  "parse": {
+    "condition": "selection",
+    "selections": [
+      "selection"
+    ],
+    "root_kind": "criterion",
+    "root_op": null,
+    "metadata_errors": [],
+    "criteria": [
+      {
+        "selection": "selection",
+        "field": "TargetFilename",
+        "modifiers": [
+          "fieldref"
+        ],
+        "value_type": "fieldref",
+        "tier": 4,
+        "category": "relational",
+        "confidence": "medium"
+      }
+    ]
+  },
+  "pyramid": {
+    "tier": 4,
+    "value": "Host/network artifacts",
+    "confidence": "medium",
+    "provenance": "deterministic:ast",
+    "categories": [
+      "relational"
+    ],
+    "advisory_kinds": []
+  },
+  "scope": {
+    "logsource_text": "windows file_delete events",
+    "fields": [
+      "TargetFilename"
+    ],
+    "criteria_count": 1,
+    "filter_count": 0,
+    "selections": [
+      {
+        "name": "selection",
+        "role": "primary",
+        "criteria": 1
+      }
+    ],
+    "outline": [
+      "TargetFilename equals the value of field 'Image'"
+    ]
+  }
+}
