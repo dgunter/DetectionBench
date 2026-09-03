@@ -77,8 +77,10 @@ def resolve_model(settings: Settings, model_key: str) -> str:
 
 class AnthropicLlmClient:
     def __init__(self, api_key: str, model: str, timeout_seconds: float = 60.0) -> None:
-        # One retry only: the 60 s budget is the user-facing promise and retries stack on it.
-        self._client = anthropic.Anthropic(api_key=api_key, timeout=timeout_seconds, max_retries=1)
+        # No SDK retries: the timeout is the user-facing promise, and the SDK would
+        # retry a timed-out call too (wall-clock = timeout x (retries + 1)). Transient
+        # 429/overload errors surface as friendly "try again" states instead.
+        self._client = anthropic.Anthropic(api_key=api_key, timeout=timeout_seconds, max_retries=0)
         self._model = model
 
     @staticmethod
