@@ -1,0 +1,242 @@
+{
+  "parse": {
+    "condition": "selection",
+    "selections": [
+      "selection"
+    ],
+    "root_kind": "boolean",
+    "root_op": "or",
+    "metadata_errors": [],
+    "criteria": [
+      {
+        "selection": "selection",
+        "field": "Image",
+        "modifiers": [
+          "endswith"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "OriginalFileName",
+        "modifiers": [],
+        "value_type": "string",
+        "tier": 5,
+        "category": "tool",
+        "confidence": "medium"
+      },
+      {
+        "selection": "selection",
+        "field": "Description",
+        "modifiers": [],
+        "value_type": "string",
+        "tier": 5,
+        "category": "tool",
+        "confidence": "medium"
+      },
+      {
+        "selection": "selection",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      }
+    ]
+  },
+  "pyramid": {
+    "tier": 5,
+    "value": "Tools",
+    "confidence": "medium",
+    "provenance": "deterministic:ast",
+    "categories": [
+      "tool"
+    ],
+    "advisory_kinds": []
+  },
+  "scope": {
+    "logsource_text": "windows process_creation events",
+    "fields": [
+      "CommandLine",
+      "Description",
+      "Image",
+      "OriginalFileName"
+    ],
+    "criteria_count": 18,
+    "filter_count": 0,
+    "selections": [
+      {
+        "name": "selection",
+        "role": "primary",
+        "criteria": 18
+      }
+    ],
+    "outline": [
+      "any of the following [selection]",
+      "Image ends with '\\Rubeus.exe'",
+      "OriginalFileName equals 'Rubeus.exe'",
+      "Description equals 'Rubeus'",
+      "CommandLine contains any of 'asreproast ', 'dump /service:krbtgt ', 'dump /luid:0x', 'kerberoast ', \u2026 (11 more)"
+    ]
+  }
+}
