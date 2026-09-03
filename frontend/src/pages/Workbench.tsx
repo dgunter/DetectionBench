@@ -132,7 +132,16 @@ export function Workbench({ onLoggedOut }: { onLoggedOut: () => void }) {
 
           {/* Column 3: the AI second opinion, never merged into column 2. */}
           <div className="lg:sticky lg:top-4">
-            <AiPanel hasRule={parsed} />
+            <AiPanel
+              hasRule={parsed}
+              rule={rule}
+              onUseCandidate={(yaml) => {
+                setRule(yaml)
+                setPhase("empty")
+                setResult(null)
+                setTransportError(null)
+              }}
+            />
           </div>
         </main>
       </div>
