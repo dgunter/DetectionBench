@@ -121,7 +121,16 @@ export function Workbench({ onLoggedOut }: { onLoggedOut: () => void }) {
             <ResultCard title="Lint results" tooltip={CARD_TOOLTIPS.lint} state={dependentState(false)} />
             <ResultCard title="ATT&CK mapping" tooltip={CARD_TOOLTIPS.attack} state={dependentState(false)} className="md:col-span-2" />
           </div>
-          <AiPanel hasRule={parsed} />
+          <AiPanel
+            hasRule={parsed}
+            rule={rule}
+            onUseCandidate={(yaml) => {
+              setRule(yaml)
+              setPhase("empty")
+              setResult(null)
+              setTransportError(null)
+            }}
+          />
         </main>
       </div>
     </TooltipProvider>
