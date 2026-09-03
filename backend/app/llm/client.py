@@ -43,7 +43,9 @@ class LlmReply:
 class LlmClient(Protocol):
     def complete(self, *, system: str, user: str, max_tokens: int = 4096) -> LlmReply: ...
 
-    def complete_json(self, *, system: str, user: str, schema: dict[str, Any], max_tokens: int = 8192) -> dict[str, Any]: ...
+    def complete_json(
+        self, *, system: str, user: str, schema: dict[str, Any], max_tokens: int = 8192, effort: str | None = None, timeout: float | None = None
+    ) -> dict[str, Any]: ...
 
     def stream(self, *, system: str, user: str, max_tokens: int = 4096) -> Iterator[str]:
         """Yield text deltas as they arrive. Raises LlmError, possibly mid-stream."""
@@ -89,9 +91,10 @@ class AnthropicLlmClient:
         if response.stop_reason == "refusal":
             raise LlmError("refused", "The model declined to answer this request.", 422)
 
-    def _create(self, **kwargs: Any) -> anthropic.types.Message:
+    def _create(self, *, timeout: float | None = None, **kwargs: Any) -> anthropic.types.Message:
+        client = self._client.with_options(timeout=timeout) if timeout else self._client
         with self._mapped_errors():
-            response = self._client.messages.create(model=self._model, **kwargs)
+            response = client.messages.create(model=self._model, **kwargs)
         self._check_refusal(response)
         return response
 
@@ -119,12 +122,18 @@ class AnthropicLlmClient:
         )
         return LlmReply(self._text(response), response.usage.input_tokens, response.usage.output_tokens)
 
-    def complete_json(self, *, system: str, user: str, schema: dict[str, Any], max_tokens: int = 8192) -> dict[str, Any]:
+    def complete_json(
+        self, *, system: str, user: str, schema: dict[str, Any], max_tokens: int = 8192, effort: str | None = None, timeout: float | None = None
+    ) -> dict[str, Any]:
+        output_config: dict[str, Any] = {"format": {"type": "json_schema", "schema": schema}}
+        if effort:
+            output_config["effort"] = effort
         response = self._create(
+            timeout=timeout,
             max_tokens=max_tokens,
             system=[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
             messages=[{"role": "user", "content": user}],
-            output_config={"format": {"type": "json_schema", "schema": schema}},
+            output_config=output_config,
         )
         try:
             return json.loads(self._text(response))

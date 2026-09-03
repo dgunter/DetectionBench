@@ -159,7 +159,14 @@ def candidates(body: LlmRequest, request: Request, client: LlmClient = Depends(g
     _guard(request, body)
     if scorer is None:
         raise LlmError("rescoring_unavailable", "Candidate re-scoring isn't available on this server.", 503)
-    data = client.complete_json(system=_system(), user=candidates_prompt(body.rule, _analysis(scorer, body.rule)), schema=candidates_schema())
+    settings = get_settings()
+    data = client.complete_json(
+        system=_system(),
+        user=candidates_prompt(body.rule, _analysis(scorer, body.rule)),
+        schema=candidates_schema(),
+        effort=settings.llm_candidates_effort,
+        timeout=settings.llm_candidates_timeout_seconds,
+    )
     proposals = list(data.get("candidates", []))[:3]
     return _envelope("candidates", body, **rescore(body.rule, proposals, scorer))
 
