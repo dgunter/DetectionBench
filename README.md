@@ -29,8 +29,7 @@ Paste a detection rule in and get back a deterministic breakdown:
 All five of the above are computed the same way every time for the same
 input — no model in the loop, no variance run to run.
 
-Alongside that, an **AI analysis panel** (Claude Opus today; other Claude
-models are on the roadmap) lets you ask it to explain the rule in plain language,
+Alongside that, an **AI analysis panel** (Claude Opus, Sonnet or Fable, your pick) lets you ask it to explain the rule in plain language,
 suggest additional ATT&CK techniques the author may have missed, or draft
 candidate rewrites. The model's read is shown side by side with the
 deterministic score — informative, but the deterministic pipeline is always
