@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
-# DetectionBench deploy — run on the production host: `ssh root@host 'bash /opt/detectionbench/deploy.sh'`
-# Pull main, build frontend, sync backend deps, run tests (abort on red), restart, verify it actually serves.
+# DetectionBench deploy — run on the production host:
+#   ssh root@host 'bash /opt/detectionbench/deploy.sh'            # deploy origin/main
+#   ssh root@host 'bash -s -- some-branch' < deploy.sh            # deploy a branch before it merges
+# Fetch the ref, build frontend, sync backend deps, run tests (abort on red), restart, verify it actually serves.
 set -euo pipefail
+
+REF="${1:-main}"
 
 APP_DIR=/opt/detectionbench
 WEB_ROOT=/var/www/detectionbench
@@ -17,9 +21,9 @@ as_app() { sudo -u "$SVC_USER" -H env PATH="/usr/local/bin:/usr/bin:/bin" UV_PYT
 
 cd "$APP_DIR"
 
-log "pull main"
-as_app git -C "$APP_DIR" fetch -q origin main
-as_app git -C "$APP_DIR" reset -q --hard origin/main
+log "fetch $REF"
+as_app git -C "$APP_DIR" fetch -q origin "$REF"
+as_app git -C "$APP_DIR" reset -q --hard FETCH_HEAD
 as_app git -C "$APP_DIR" log --oneline -1
 
 log "frontend: install + build"
