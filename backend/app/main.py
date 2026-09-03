@@ -10,6 +10,8 @@ from pydantic import BaseModel
 from app import __version__
 from app.api.auth import router as auth_router
 from app.api.examples import router as examples_router
+from app.api.llm import llm_error_handler, router as llm_router
+from app.llm.client import LlmError
 from app.api.classify import router as classify_router
 from app.auth import request_is_authenticated
 from app.config import get_settings
@@ -36,6 +38,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="DetectionBench API", version=__version__, lifespan=lifespan, docs_url=None, redoc_url=None)
 app.include_router(auth_router)
 app.include_router(examples_router)
+app.include_router(llm_router)
+app.add_exception_handler(LlmError, llm_error_handler)
 app.include_router(classify_router)
 
 
