@@ -1,5 +1,7 @@
 // Thin same-origin API client. Cookies carry the session; nothing secret lives here.
 
+import type { ClassifyResponse } from "./types"
+
 export class ApiError extends Error {
   status: number
   constructor(status: number, message: string) {
@@ -42,6 +44,8 @@ export const api = {
   verifyToken: (token: string) =>
     request<void>("/api/auth/verify", { method: "POST", body: JSON.stringify({ token }) }),
   logout: () => request<void>("/api/auth/logout", { method: "POST" }),
+  classify: (rule: string) =>
+    request<ClassifyResponse>("/api/classify", { method: "POST", body: JSON.stringify({ rule }) }),
   health: () =>
     request<{ status: string; version: string; pysigma_version: string; attack_dataset_version: string }>(
       "/api/health",
