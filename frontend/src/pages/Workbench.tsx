@@ -2,6 +2,7 @@ import { useCallback, useState } from "react"
 import { Link } from "react-router-dom"
 import { AiPanel } from "@/components/AiPanel"
 import { AstCard } from "@/components/cards/AstCard"
+import { ExampleChips } from "@/components/ExampleChips"
 import { ScopeCard } from "@/components/cards/ScopeCard"
 import { CARD_TOOLTIPS, ResultCard, type CardState } from "@/components/ResultCard"
 import { Button } from "@/components/ui/button"
@@ -94,6 +95,17 @@ export function Workbench({ onLoggedOut }: { onLoggedOut: () => void }) {
               </Button>
             </div>
           </form>
+          <div className="mt-2">
+            <ExampleChips
+              disabled={phase === "loading"}
+              onPick={(yaml) => {
+                setRule(yaml)
+                setPhase("empty")
+                setResult(null)
+                setTransportError(null)
+              }}
+            />
+          </div>
           {transportError && (
             <p className="mt-2 text-sm text-destructive" role="alert">
               {transportError}
