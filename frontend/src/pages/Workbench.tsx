@@ -2,6 +2,9 @@ import { useCallback, useState } from "react"
 import { Link } from "react-router-dom"
 import { AiPanel } from "@/components/AiPanel"
 import { AstCard } from "@/components/cards/AstCard"
+import { AttackCard } from "@/components/cards/AttackCard"
+import { LintCard } from "@/components/cards/LintCard"
+import { PyramidCard } from "@/components/cards/PyramidCard"
 import { ExampleChips } from "@/components/ExampleChips"
 import { ScopeCard } from "@/components/cards/ScopeCard"
 import { CARD_TOOLTIPS, ResultCard, type CardState } from "@/components/ResultCard"
@@ -118,9 +121,13 @@ export function Workbench({ onLoggedOut }: { onLoggedOut: () => void }) {
           <div className="flex flex-col gap-3">
             <AstCard state={astState} ast={result?.ast ?? null} error={result?.error ?? null} />
             <ScopeCard state={dependentState(Boolean(result?.scope))} scope={result?.scope ?? null} />
-            <ResultCard title="Pyramid of Pain" tooltip={CARD_TOOLTIPS.pyramid} state={dependentState(false)} />
-            <ResultCard title="Lint results" tooltip={CARD_TOOLTIPS.lint} state={dependentState(false)} />
-            <ResultCard title="ATT&CK mapping" tooltip={CARD_TOOLTIPS.attack} state={dependentState(false)} />
+            <PyramidCard state={dependentState(Boolean(result?.pyramid))} pyramid={result?.pyramid ?? null} />
+            <LintCard state={dependentState(Boolean(result?.lint))} lint={result?.lint ?? null} />
+            {parsed && result?.attack ? (
+              <AttackCard mapping={result.attack} />
+            ) : (
+              <ResultCard title="ATT&CK mapping" tooltip={CARD_TOOLTIPS.attack} state={dependentState(false)} />
+            )}
           </div>
 
           {/* Column 3: the AI second opinion, never merged into column 2. */}

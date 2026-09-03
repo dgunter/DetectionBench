@@ -189,5 +189,51 @@
       "CommandLine contains '\\xampp\\'",
       "CommandLine contains '\\catalina_start.bat'"
     ]
+  },
+  "lint": {
+    "value": "1 warning",
+    "checks": {
+      "title": "pass",
+      "id": "pass",
+      "status": "pass",
+      "description": "pass",
+      "references": "pass",
+      "level": "pass",
+      "falsepositives": "warning",
+      "logsource": "pass",
+      "selections": "pass",
+      "attack_techniques": "pass",
+      "attack_tactics": "pass",
+      "attack_software_groups": "pass",
+      "date": "pass"
+    },
+    "findings": [
+      [
+        "falsepositives",
+        "warning",
+        "falsepositives"
+      ]
+    ]
+  },
+  "attack": {
+    "techniques": [
+      [
+        "T1055",
+        "valid",
+        null
+      ]
+    ],
+    "tactics": [
+      [
+        "privilege-escalation",
+        "valid"
+      ],
+      [
+        "stealth",
+        "valid"
+      ]
+    ],
+    "unvalidated": [],
+    "findings": []
   }
 }

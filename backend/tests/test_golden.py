@@ -14,7 +14,10 @@ from pathlib import Path
 
 import pytest
 
+from app.pipeline.attack import load_attack_dataset
+from app.pipeline.attack_map import map_attack_tags
 from app.pipeline.ir import iter_criteria
+from app.pipeline.lint import lint_rule
 from app.pipeline.parse import parse_rule
 from app.pipeline.pyramid import classify
 from app.pipeline.scope import describe
@@ -39,6 +42,9 @@ def _actual(rule_path: Path) -> dict:
     ir = parsed.ir
     pyramid = classify(ir)
     scope = describe(ir)
+    dataset = load_attack_dataset()
+    lint = lint_rule(parsed.raw, ir, list(parsed.rule.detection.detections), parsed.metadata_errors, dataset)
+    attack = map_attack_tags(ir.metadata.tags, dataset)
     return {
         "parse": {
             "condition": ir.condition,
@@ -74,6 +80,17 @@ def _actual(rule_path: Path) -> dict:
             "filter_count": scope.filter_count,
             "selections": list(scope.selections),
             "outline": [line.text for line in scope.outline],
+        },
+        "lint": {
+            "value": lint.value,
+            "checks": {c.check: c.status for c in lint.checks},
+            "findings": [[f.check, f.severity, f.tag] for f in lint.findings],
+        },
+        "attack": {
+            "techniques": [[t.id, t.status, t.replaced_by] for t in attack.techniques],
+            "tactics": [[t.name, t.status] for t in attack.tactics],
+            "unvalidated": list(attack.unvalidated),
+            "findings": [[f.check, f.severity] for f in attack.findings],
         },
     }
 
