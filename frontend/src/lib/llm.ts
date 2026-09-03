@@ -95,3 +95,38 @@ export function describeDelta(c: CandidateResult): string {
   if (c.lint_warning_delta !== null && c.lint_warning_delta !== 0) parts.push(`lint warnings ${signed(c.lint_warning_delta)}`)
   return parts.join(" · ")
 }
+
+// --- Server-sent events for the streaming explain action ---------------------
+
+export type SseEvent =
+  | { type: "delta"; text: string }
+  | { type: "done"; model?: ModelKey; provenance?: "inferred:llm" }
+  | { type: "error"; code: string; message: string }
+
+/**
+ * Pull complete SSE events out of a text buffer. Events are separated by a
+ * blank line; each carries one `data:` line holding JSON. Returns the parsed
+ * events and whatever trailing partial event should be kept for the next chunk.
+ */
+export function parseSseBuffer(buffer: string): { events: SseEvent[]; rest: string } {
+  const events: SseEvent[] = []
+  const normalized = buffer.replace(/\r\n/g, "\n")
+  const lastBreak = normalized.lastIndexOf("\n\n")
+  if (lastBreak === -1) return { events, rest: normalized }
+  const complete = normalized.slice(0, lastBreak)
+  const rest = normalized.slice(lastBreak + 2)
+  for (const block of complete.split("\n\n")) {
+    const data = block
+      .split("\n")
+      .filter((line) => line.startsWith("data:"))
+      .map((line) => line.slice(5).trimStart())
+      .join("\n")
+    if (!data) continue
+    try {
+      events.push(JSON.parse(data) as SseEvent)
+    } catch {
+      /* ignore malformed event */
+    }
+  }
+  return { events, rest }
+}

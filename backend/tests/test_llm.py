@@ -29,16 +29,31 @@ class FakeClient:
         self.calls.append({"system": system, "user": user, "schema": schema})
         return self.data
 
+    def stream(self, *, system, user, max_tokens=4096):
+        self.calls.append({"system": system, "user": user})
+        yield from self.text.split(" ")
+
 
 class FailingClient:
-    def __init__(self, err: LlmError):
+    def __init__(self, err: LlmError, after: int = 0):
         self.err = err
+        self.after = after  # for stream(): deltas to yield before failing
 
     def complete(self, **kw):
         raise self.err
 
     def complete_json(self, **kw):
         raise self.err
+
+    def stream(self, **kw):
+        for i in range(self.after):
+            yield f"chunk{i}"
+        raise self.err
+
+
+def sse_events(response) -> list[dict]:
+    assert response.headers["content-type"].startswith("text/event-stream")
+    return [json.loads(line[len("data: "):]) for line in response.iter_lines() if line.startswith("data: ")]
 
 
 def fake_scorer(tiers: dict[str, int], errors: dict[str, int] | None = None):
@@ -141,6 +156,47 @@ def test_explain_returns_text_with_llm_provenance(llm):
     assert body["text"] == "It looks for x." and body["provenance"] == "inferred:llm" and body["model"] == "opus"
     # Rule and deterministic analysis both reach the prompt, delimited.
     assert "<rule>" in fake.calls[0]["user"] and '"pyramid_tier": 4' in fake.calls[0]["user"]
+
+
+def test_explain_stream_emits_deltas_then_done(llm):
+    fake = FakeClient("It looks for x.")
+    use(fake, fake_scorer({RULE: 4}))
+    with llm.stream("POST", "/api/llm/explain/stream", json={"rule": RULE}) as r:
+        assert r.status_code == 200
+        events = sse_events(r)
+    assert [e["type"] for e in events] == ["delta", "delta", "delta", "delta", "done"]
+    assert "".join(e["text"] for e in events if e["type"] == "delta") == "Itlooksforx."
+    assert events[-1]["provenance"] == "inferred:llm"
+    assert "<rule>" in fake.calls[0]["user"]
+
+
+def test_explain_stream_reports_midstream_failure_as_event(llm):
+    use(FailingClient(LlmError("overloaded", "busy", 503), after=2), None)
+    with llm.stream("POST", "/api/llm/explain/stream", json={"rule": RULE}) as r:
+        assert r.status_code == 200  # headers are already out; the failure rides the stream
+        events = sse_events(r)
+    assert [e["type"] for e in events] == ["delta", "delta", "error"]
+    assert events[-1]["code"] == "overloaded"
+
+
+def test_explain_stream_wall_clock_guard(llm, monkeypatch):
+    import app.api.llm as llm_api
+
+    monkeypatch.setattr(llm_api, "_wall_clock_limit", lambda: -1.0)  # already expired
+    use(FakeClient("a b c"), None)
+    with llm.stream("POST", "/api/llm/explain/stream", json={"rule": RULE}) as r:
+        events = sse_events(r)
+    assert events == [{"type": "error", "code": "timeout", "message": "The model took too long to answer. Try again."}]
+
+
+def test_explain_stream_limits_still_fail_before_streaming(llm):
+    use(FakeClient("ok"), None)
+    r = llm.post("/api/llm/explain/stream", json={"rule": RULE, "model": "sonnet"})
+    assert r.status_code == 400 and r.json()["error"]["code"] == "model_not_available"
+    assert llm.post("/api/llm/explain/stream", json={"rule": RULE}).status_code == 200
+    for _ in range(ip_limiter.limit):
+        ip_limiter.allow("testclient")
+    assert llm.post("/api/llm/explain/stream", json={"rule": RULE}).status_code == 429
 
 
 def test_explain_without_pipeline_still_works(llm):

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { describeDelta, describeLlmError, type CandidateResult } from "./llm"
+import { describeDelta, describeLlmError, parseSseBuffer, type CandidateResult } from "./llm"
 
 const base: CandidateResult = {
   index: 0,
@@ -28,5 +28,21 @@ describe("describeLlmError", () => {
     expect(describeLlmError(429, "budget_exhausted", undefined)).toMatch(/budget/)
     expect(describeLlmError(504, undefined, undefined)).toMatch(/too long/)
     expect(describeLlmError(500, undefined, undefined)).toBe("The AI request failed.")
+  })
+})
+
+describe("parseSseBuffer", () => {
+  it("parses complete events and keeps the partial tail", () => {
+    const { events, rest } = parseSseBuffer('data: {"type":"delta","text":"Hi"}\n\ndata: {"type":"del')
+    expect(events).toEqual([{ type: "delta", text: "Hi" }])
+    expect(rest).toBe('data: {"type":"del')
+  })
+  it("handles CRLF, multiple events, and the done marker", () => {
+    const { events, rest } = parseSseBuffer('data: {"type":"delta","text":"a"}\r\n\r\ndata: {"type":"done"}\r\n\r\n')
+    expect(events.map((e) => e.type)).toEqual(["delta", "done"])
+    expect(rest).toBe("")
+  })
+  it("skips malformed events", () => {
+    expect(parseSseBuffer("data: not json\n\n").events).toEqual([])
   })
 })

@@ -9,8 +9,9 @@ short code so the panel renders a friendly state instead of a blank card.
 from __future__ import annotations
 
 import json
+from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Protocol
+from typing import Any, Iterator, Protocol
 
 import anthropic
 
@@ -44,6 +45,10 @@ class LlmClient(Protocol):
 
     def complete_json(self, *, system: str, user: str, schema: dict[str, Any], max_tokens: int = 8192) -> dict[str, Any]: ...
 
+    def stream(self, *, system: str, user: str, max_tokens: int = 4096) -> Iterator[str]:
+        """Yield text deltas as they arrive. Raises LlmError, possibly mid-stream."""
+        ...
+
 
 def resolve_model(settings: Settings, model_key: str) -> str:
     if model_key not in MODEL_KEYS:
@@ -60,9 +65,12 @@ class AnthropicLlmClient:
         self._client = anthropic.Anthropic(api_key=api_key, timeout=timeout_seconds, max_retries=1)
         self._model = model
 
-    def _create(self, **kwargs: Any) -> anthropic.types.Message:
+    @staticmethod
+    @contextmanager
+    def _mapped_errors() -> Iterator[None]:
+        """Translate SDK exceptions into user-facing LlmErrors (most specific first)."""
         try:
-            response = self._client.messages.create(model=self._model, **kwargs)
+            yield
         except anthropic.APITimeoutError as exc:
             raise LlmError("timeout", "The model took too long to answer. Try again.", 504) from exc
         except anthropic.RateLimitError as exc:
@@ -75,9 +83,29 @@ class AnthropicLlmClient:
             raise LlmError("api_error", "The model request was rejected.", 502) from exc
         except anthropic.APIConnectionError as exc:
             raise LlmError("unreachable", "Couldn't reach the model service.", 502) from exc
+
+    @staticmethod
+    def _check_refusal(response: anthropic.types.Message) -> None:
         if response.stop_reason == "refusal":
             raise LlmError("refused", "The model declined to answer this request.", 422)
+
+    def _create(self, **kwargs: Any) -> anthropic.types.Message:
+        with self._mapped_errors():
+            response = self._client.messages.create(model=self._model, **kwargs)
+        self._check_refusal(response)
         return response
+
+    def stream(self, *, system: str, user: str, max_tokens: int = 4096) -> Iterator[str]:
+        with self._mapped_errors():
+            with self._client.messages.stream(
+                model=self._model,
+                max_tokens=max_tokens,
+                system=[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
+                messages=[{"role": "user", "content": user}],
+            ) as stream:
+                for text in stream.text_stream:
+                    yield text
+                self._check_refusal(stream.get_final_message())
 
     @staticmethod
     def _text(response: anthropic.types.Message) -> str:

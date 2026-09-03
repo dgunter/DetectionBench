@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import json
+import time
 from functools import lru_cache
-from typing import Any
+from typing import Any, Iterator
 
-from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from app.auth import client_ip
@@ -80,6 +82,46 @@ def explain(body: LlmRequest, request: Request, client: LlmClient = Depends(get_
     _guard(request, body)
     reply = client.complete(system=_system(), user=explain_prompt(body.rule, _analysis(scorer, body.rule)))
     return _envelope("explain", body, text=reply.text)
+
+
+def _sse(event: dict[str, Any]) -> str:
+    return f"data: {json.dumps(event)}\n\n"
+
+
+def _wall_clock_limit() -> float:
+    return get_settings().llm_timeout_seconds
+
+
+@router.post("/explain/stream")
+def explain_stream(body: LlmRequest, request: Request, client: LlmClient = Depends(get_llm_client), scorer: Scorer | None = Depends(get_scorer)) -> StreamingResponse:
+    """Server-sent events: {"type":"delta","text"} ... then {"type":"done"} or {"type":"error","code","message"}.
+
+    Limits and model gating are checked before the stream opens, so those still
+    fail with a normal HTTP status; anything that goes wrong after the first
+    byte is reported as an error event on the stream.
+    """
+    _guard(request, body)
+    prompt = explain_prompt(body.rule, _analysis(scorer, body.rule))
+    system = _system()
+
+    def events() -> Iterator[str]:
+        started = time.monotonic()
+        limit = _wall_clock_limit()
+        try:
+            for delta in client.stream(system=system, user=prompt):
+                if time.monotonic() - started > limit:
+                    yield _sse({"type": "error", "code": "timeout", "message": "The model took too long to answer. Try again."})
+                    return
+                yield _sse({"type": "delta", "text": delta})
+            yield _sse({"type": "done", "model": body.model, "provenance": "inferred:llm"})
+        except LlmError as exc:
+            yield _sse({"type": "error", **exc.to_dict()})
+
+    return StreamingResponse(
+        events(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 @router.post("/suggest-attack")
