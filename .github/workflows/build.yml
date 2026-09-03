@@ -5,6 +5,13 @@ on:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
+
+# The workflow token only needs to read the repo and write the sticky
+# SonarCloud comment on the PR (issues API). Nothing else.
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   sonarqube:
     name: Tests + SonarQube
@@ -36,7 +43,24 @@ jobs:
           npm run typecheck
           npx vitest run
 
+      # Push to main -> branch analysis; pull_request -> PR analysis
+      # (the scanner auto-detects the PR number from the Actions event and
+      # scores only the new code against main).
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8.1.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      # Bring the PR analysis back into GitHub: wait for SonarCloud to finish
+      # processing, then upsert one sticky comment (quality gate + every open
+      # issue on the new code, plus a JSON copy), annotate the diff, and
+      # mirror it into the job summary. Report-only by default; set
+      # SONAR_GATE_FAILS_JOB=true to turn a red gate into a red check.
+      - name: Post SonarCloud results to the PR
+        if: github.event_name == 'pull_request'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: python3 .github/scripts/sonar_pr_report.py
