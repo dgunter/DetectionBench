@@ -49,12 +49,14 @@ def get_scorer() -> Scorer | None:
     return default_scorer()
 
 
-def _guard(request: Request, body: LlmRequest) -> None:
-    resolve_model(get_settings(), body.model)
+def _guard(request: Request, body: LlmRequest) -> str:
+    """Validate the model key and the limits; return the resolved model ID for the call."""
+    model = resolve_model(get_settings(), body.model)
     if not ip_limiter.allow(client_ip(request)):
         raise LlmError("rate_limited", "Too many AI requests from your address. Wait a minute.", 429)
     if not hourly_budget.allow():
         raise LlmError("budget_exhausted", "The shared hourly AI budget is used up. Try again later.", 429)
+    return model
 
 
 def _analysis(scorer: Scorer | None, rule: str) -> dict[str, Any] | None:
@@ -79,8 +81,8 @@ def budget() -> dict[str, int]:
 
 @router.post("/explain")
 def explain(body: LlmRequest, request: Request, client: LlmClient = Depends(get_llm_client), scorer: Scorer | None = Depends(get_scorer)) -> dict[str, Any]:
-    _guard(request, body)
-    reply = client.complete(system=_system(), user=explain_prompt(body.rule, _analysis(scorer, body.rule)))
+    model = _guard(request, body)
+    reply = client.complete(model=model, system=_system(), user=explain_prompt(body.rule, _analysis(scorer, body.rule)))
     return _envelope("explain", body, text=reply.text)
 
 
@@ -100,7 +102,7 @@ def explain_stream(body: LlmRequest, request: Request, client: LlmClient = Depen
     fail with a normal HTTP status; anything that goes wrong after the first
     byte is reported as an error event on the stream.
     """
-    _guard(request, body)
+    model = _guard(request, body)
     prompt = explain_prompt(body.rule, _analysis(scorer, body.rule))
     system = _system()
 
@@ -108,7 +110,7 @@ def explain_stream(body: LlmRequest, request: Request, client: LlmClient = Depen
         started = time.monotonic()
         limit = _wall_clock_limit()
         try:
-            for delta in client.stream(system=system, user=prompt):
+            for delta in client.stream(model=model, system=system, user=prompt):
                 if time.monotonic() - started > limit:
                     yield _sse({"type": "error", "code": "timeout", "message": "The model took too long to answer. Try again."})
                     return
@@ -126,8 +128,8 @@ def explain_stream(body: LlmRequest, request: Request, client: LlmClient = Depen
 
 @router.post("/suggest-attack")
 def suggest_attack(body: LlmRequest, request: Request, client: LlmClient = Depends(get_llm_client), scorer: Scorer | None = Depends(get_scorer)) -> dict[str, Any]:
-    _guard(request, body)
-    data = client.complete_json(system=_system(), user=suggest_attack_prompt(body.rule, _analysis(scorer, body.rule)), schema=attack_schema())
+    model = _guard(request, body)
+    data = client.complete_json(model=model, system=_system(), user=suggest_attack_prompt(body.rule, _analysis(scorer, body.rule)), schema=attack_schema())
     dataset = load_attack_dataset()
     suggestions = []
     for item in data.get("techniques", [])[:6]:
@@ -156,10 +158,10 @@ def suggest_attack(body: LlmRequest, request: Request, client: LlmClient = Depen
 
 @router.post("/candidates")
 def candidates(body: LlmRequest, request: Request, client: LlmClient = Depends(get_llm_client), scorer: Scorer | None = Depends(get_scorer)) -> dict[str, Any]:
-    _guard(request, body)
+    model = _guard(request, body)
     if scorer is None:
         raise LlmError("rescoring_unavailable", "Candidate re-scoring isn't available on this server.", 503)
-    data = client.complete_json(system=_system(), user=candidates_prompt(body.rule, _analysis(scorer, body.rule)), schema=candidates_schema())
+    data = client.complete_json(model=model, system=_system(), user=candidates_prompt(body.rule, _analysis(scorer, body.rule)), schema=candidates_schema())
     proposals = list(data.get("candidates", []))[:3]
     return _envelope("candidates", body, **rescore(body.rule, proposals, scorer))
 
