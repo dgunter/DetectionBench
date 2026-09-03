@@ -1,7 +1,21 @@
-import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+/// <reference types="vitest/config" />
+import path from "node:path"
+import { defineConfig } from "vite"
+import react from "@vitejs/plugin-react"
+import tailwindcss from "@tailwindcss/vite"
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: { "@": path.resolve(__dirname, "./src") },
+  },
+  server: {
+    // Same-origin in production (Caddy routes /api/* to the backend); mirror that locally.
+    proxy: { "/api": "http://127.0.0.1:8000" },
+  },
+  test: {
+    environment: "node",
+    include: ["src/**/*.test.ts"],
+  },
 })
