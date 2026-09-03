@@ -1,0 +1,121 @@
+{
+  "parse": {
+    "condition": "selection_dump and 1 of selection_tools_*",
+    "selections": [
+      "selection_dump",
+      "selection_tools_procdump"
+    ],
+    "root_kind": "boolean",
+    "root_op": "and",
+    "metadata_errors": [],
+    "criteria": [
+      {
+        "selection": "selection_dump",
+        "field": "Image",
+        "modifiers": [
+          "startswith"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection_dump",
+        "field": "Image",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection_dump",
+        "field": "Image",
+        "modifiers": [
+          "endswith"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection_tools_procdump",
+        "field": "OriginalFileName",
+        "modifiers": [],
+        "value_type": "string",
+        "tier": 5,
+        "category": "tool",
+        "confidence": "medium"
+      },
+      {
+        "selection": "selection_tools_procdump",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection_tools_procdump",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      }
+    ]
+  },
+  "pyramid": {
+    "tier": 6,
+    "value": "TTPs",
+    "confidence": "medium",
+    "provenance": "deterministic:ast",
+    "categories": [
+      "host_artifact",
+      "tool"
+    ],
+    "advisory_kinds": []
+  },
+  "scope": {
+    "logsource_text": "windows process_creation events",
+    "fields": [
+      "CommandLine",
+      "Image",
+      "OriginalFileName"
+    ],
+    "criteria_count": 6,
+    "filter_count": 0,
+    "selections": [
+      {
+        "name": "selection_dump",
+        "role": "primary",
+        "criteria": 3
+      },
+      {
+        "name": "selection_tools_procdump",
+        "role": "primary",
+        "criteria": 3
+      }
+    ],
+    "outline": [
+      "all of the following",
+      "all of the following [selection_dump]",
+      "Image starts with ':\\Program Files'",
+      "Image contains '\\Microsoft Visual Studio\\'",
+      "Image ends with '\\dump64.exe'",
+      "any of the following [selection_tools_procdump]",
+      "OriginalFileName equals 'procdump'",
+      "CommandLine contains any of ' -ma ', ' -mp '"
+    ]
+  }
+}

@@ -1,0 +1,263 @@
+{
+  "parse": {
+    "condition": "selection",
+    "selections": [
+      "selection"
+    ],
+    "root_kind": "boolean",
+    "root_op": "or",
+    "metadata_errors": [],
+    "criteria": [
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "query",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 3,
+        "category": "domain",
+        "confidence": "high"
+      }
+    ]
+  },
+  "pyramid": {
+    "tier": 3,
+    "value": "Domain names",
+    "confidence": "high",
+    "provenance": "deterministic:ast",
+    "categories": [
+      "domain"
+    ],
+    "advisory_kinds": [
+      "level_vs_tier"
+    ]
+  },
+  "scope": {
+    "logsource_text": "dns events",
+    "fields": [
+      "query"
+    ],
+    "criteria_count": 20,
+    "filter_count": 0,
+    "selections": [
+      {
+        "name": "selection",
+        "role": "primary",
+        "criteria": 20
+      }
+    ],
+    "outline": [
+      "query contains any of 'pool.minexmr.com', 'fr.minexmr.com', 'de.minexmr.com', 'sg.minexmr.com', \u2026 (16 more)"
+    ]
+  }
+}

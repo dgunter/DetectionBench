@@ -1,0 +1,144 @@
+{
+  "parse": {
+    "condition": "not selection",
+    "selections": [
+      "selection"
+    ],
+    "root_kind": "boolean",
+    "root_op": "not",
+    "metadata_errors": [],
+    "criteria": [
+      {
+        "selection": "selection",
+        "field": "id.orig_h",
+        "modifiers": [
+          "cidr"
+        ],
+        "value_type": "cidr",
+        "tier": 2,
+        "category": "ip",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "id.orig_h",
+        "modifiers": [
+          "cidr"
+        ],
+        "value_type": "cidr",
+        "tier": 2,
+        "category": "ip",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "id.orig_h",
+        "modifiers": [
+          "cidr"
+        ],
+        "value_type": "cidr",
+        "tier": 2,
+        "category": "ip",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "id.orig_h",
+        "modifiers": [
+          "cidr"
+        ],
+        "value_type": "cidr",
+        "tier": 2,
+        "category": "ip",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "id.orig_h",
+        "modifiers": [
+          "cidr"
+        ],
+        "value_type": "cidr",
+        "tier": 2,
+        "category": "ip",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "id.orig_h",
+        "modifiers": [
+          "cidr"
+        ],
+        "value_type": "cidr",
+        "tier": 2,
+        "category": "ip",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "id.orig_h",
+        "modifiers": [
+          "cidr"
+        ],
+        "value_type": "cidr",
+        "tier": 2,
+        "category": "ip",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "id.orig_h",
+        "modifiers": [
+          "cidr"
+        ],
+        "value_type": "cidr",
+        "tier": 2,
+        "category": "ip",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "id.orig_h",
+        "modifiers": [
+          "cidr"
+        ],
+        "value_type": "cidr",
+        "tier": 2,
+        "category": "ip",
+        "confidence": "high"
+      }
+    ]
+  },
+  "pyramid": {
+    "tier": 2,
+    "value": "IP addresses",
+    "confidence": "medium",
+    "provenance": "deterministic:ast",
+    "categories": [
+      "ip"
+    ],
+    "advisory_kinds": [
+      "bare_not",
+      "level_vs_tier"
+    ]
+  },
+  "scope": {
+    "logsource_text": "zeek rdp events",
+    "fields": [
+      "id.orig_h"
+    ],
+    "criteria_count": 9,
+    "filter_count": 0,
+    "selections": [
+      {
+        "name": "selection",
+        "role": "primary",
+        "criteria": 9
+      }
+    ],
+    "outline": [
+      "NOT (events where) [selection]",
+      "id.orig_h is inside network any of '::1/128', '10.0.0.0/8', '127.0.0.0/8', '172.16.0.0/12', \u2026 (5 more)"
+    ]
+  }
+}

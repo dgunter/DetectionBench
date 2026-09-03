@@ -1,0 +1,87 @@
+# Known offensive-tool names used by the Pyramid of Pain classifier (one per line, case-insensitive).
+# A hit on Image/CommandLine stays at tier 4 with a "recognized tool" annotation (renaming a binary defeats it);
+# a hit on PE-metadata fields (OriginalFileName, Product, Description, Company) reaches tier 5.
+# Lines starting with '#' are ignored. Names are matched on token boundaries.
+mimikatz
+invoke-mimikatz
+safetykatz
+pypykatz
+kekeo
+rubeus
+psexec
+paexec
+cobaltstrike
+cobalt strike
+powersploit
+powerup
+powerview
+bloodhound
+sharphound
+azurehound
+impacket
+secretsdump
+wmiexec
+smbexec
+atexec
+dcomexec
+metasploit
+meterpreter
+msfvenom
+nishang
+koadic
+empire
+seatbelt
+winpeas
+linpeas
+lazagne
+procdump
+sharpview
+sharpup
+sharpdpapi
+sharpevtmute
+evtmute
+sharpchrome
+sharpwmi
+sharprdp
+certify
+certipy
+crackmapexec
+netexec
+nanodump
+dumpert
+juicypotato
+printspoofer
+godpotato
+sweetpotato
+roguepotato
+chisel
+ligolo
+sliver
+brute ratel
+badrat
+havoc
+mythic
+covenant
+gsecdump
+pwdump
+fgdump
+cachedump
+lsadump
+quarks-pwdump
+wce.exe
+hashcat
+john the ripper
+responder
+inveigh
+ntlmrelayx
+mimipenguin
+kerberoast
+invoke-kerberoast
+adfind
+sharpsploit
+powercat
+pupy
+posh-c2
+poshc2
+merlin
+koadic

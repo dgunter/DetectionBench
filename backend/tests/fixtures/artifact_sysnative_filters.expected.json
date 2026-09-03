@@ -1,0 +1,193 @@
+{
+  "parse": {
+    "condition": "selection and not 1 of filter_main_* and not 1 of filter_optional_*",
+    "selections": [
+      "selection",
+      "filter_main_ngen",
+      "filter_optional_xampp"
+    ],
+    "root_kind": "boolean",
+    "root_op": "and",
+    "metadata_errors": [],
+    "criteria": [
+      {
+        "selection": "selection",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "selection",
+        "field": "Image",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "filter_main_ngen",
+        "field": "Image",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "filter_main_ngen",
+        "field": "Image",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "filter_main_ngen",
+        "field": "Image",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "filter_main_ngen",
+        "field": "Image",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "filter_main_ngen",
+        "field": "Image",
+        "modifiers": [
+          "endswith"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "filter_main_ngen",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "filter_optional_xampp",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains",
+          "all"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "filter_optional_xampp",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains",
+          "all"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      },
+      {
+        "selection": "filter_optional_xampp",
+        "field": "CommandLine",
+        "modifiers": [
+          "contains",
+          "all"
+        ],
+        "value_type": "string",
+        "tier": 4,
+        "category": "host_artifact",
+        "confidence": "high"
+      }
+    ]
+  },
+  "pyramid": {
+    "tier": 4,
+    "value": "Host/network artifacts",
+    "confidence": "high",
+    "provenance": "deterministic:ast",
+    "categories": [
+      "host_artifact"
+    ],
+    "advisory_kinds": [
+      "filter"
+    ]
+  },
+  "scope": {
+    "logsource_text": "windows process_creation events",
+    "fields": [
+      "CommandLine",
+      "Image"
+    ],
+    "criteria_count": 11,
+    "filter_count": 2,
+    "selections": [
+      {
+        "name": "selection",
+        "role": "primary",
+        "criteria": 2
+      },
+      {
+        "name": "filter_main_ngen",
+        "role": "filter",
+        "criteria": 6
+      },
+      {
+        "name": "filter_optional_xampp",
+        "role": "filter",
+        "criteria": 3
+      }
+    ],
+    "outline": [
+      "all of the following",
+      "any of the following [selection]",
+      "CommandLine contains ':\\Windows\\Sysnative\\'",
+      "Image contains ':\\Windows\\Sysnative\\'",
+      "excluding events where [filter_main_ngen]",
+      "all of the following [filter_main_ngen]",
+      "Image contains any of 'C:\\Windows\\Microsoft.NET\\Framework64\\v', 'C:\\Windows\\Microsoft.NET\\Framework\\v', 'C:\\Windows\\Microsoft.NET\\FrameworkArm\\v', 'C:\\Windows\\Microsoft.NET\\FrameworkArm64\\v'",
+      "Image ends with '\\ngen.exe'",
+      "CommandLine contains 'install'",
+      "excluding events where [filter_optional_xampp]",
+      "all of the following [filter_optional_xampp]",
+      "CommandLine contains '\"C:\\Windows\\sysnative\\cmd.exe\"'",
+      "CommandLine contains '\\xampp\\'",
+      "CommandLine contains '\\catalina_start.bat'"
+    ]
+  }
+}
