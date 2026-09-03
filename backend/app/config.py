@@ -41,6 +41,10 @@ class Settings:
     llm_rate_window_seconds: int = 60
     llm_hourly_budget: int = 200
     llm_timeout_seconds: float = 60.0
+    # Generating three full rules needs more room than a single answer: run it at a
+    # lower effort and allow a longer ceiling (deliberate deviation from the 60 s default).
+    llm_candidates_timeout_seconds: float = 120.0
+    llm_candidates_effort: str = "medium"
     llm_model: str = "claude-opus-5"
 
     @property

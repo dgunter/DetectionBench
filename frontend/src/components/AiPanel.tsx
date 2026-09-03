@@ -136,7 +136,7 @@ export function AiPanel({ hasRule, rule, onUseCandidate }: Props) {
         </div>
 
         {!ready && <p className="text-xs text-muted-foreground">Classify a rule first.</p>}
-        {busy && !streamText && <p className="text-xs text-muted-foreground">Asking the model… this can take up to a minute.</p>}
+        {busy && !streamText && <p className="text-xs text-muted-foreground">{busy === "candidates" ? "Drafting and re-scoring three rules… this can take up to two minutes." : "Asking the model… this can take up to a minute."}</p>}
         {streamText && (
           <p className="whitespace-pre-wrap leading-relaxed" aria-live="polite">
             {streamText}
