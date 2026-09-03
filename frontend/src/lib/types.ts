@@ -1,5 +1,7 @@
 // Shapes returned by POST /api/classify. Mirrors backend/app/pipeline/*.to_dict().
 
+import type { AttackMapping } from "./attack"
+
 export type Confidence = "high" | "medium" | "low"
 export type Provenance = "deterministic:ast" | "deterministic:metadata" | "inferred:llm"
 
@@ -94,6 +96,32 @@ export interface PyramidResult {
   advisories: Advisory[]
 }
 
+export interface LintFinding {
+  check: string
+  severity: "error" | "warning" | "info"
+  message: string
+  tag: string | null
+  confidence: string
+}
+
+export interface LintCheck {
+  check: string
+  label: string
+  status: "pass" | "error" | "warning" | "info"
+  message: string | null
+}
+
+export interface LintResult {
+  value: string
+  checks: LintCheck[]
+  findings: LintFinding[]
+  counts: { error: number; warning: number; info: number }
+  passed: number
+  provenance: Provenance
+  confidence: Confidence
+  rationale: string
+}
+
 export interface ParseFailure {
   code: string
   message: string
@@ -106,6 +134,6 @@ export interface ClassifyResponse {
   ast: AstResult | null
   scope: ScopeResult | null
   pyramid: PyramidResult | null
-  lint: unknown | null
-  attack: unknown | null
+  lint: LintResult | null
+  attack: AttackMapping | null
 }

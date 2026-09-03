@@ -43,6 +43,7 @@ def _parse_error(text: str) -> ParseError:
         ("bad modifier", BASE + "detection:\n  sel:\n    Image|bogus: x\n  condition: sel\n", "invalid_modifier"),
         ("empty selection", BASE + "detection:\n  sel: {}\n  condition: sel\n", "invalid_detection"),
         ("nested list value", BASE + "detection:\n  sel:\n    Image: [[a, b]]\n  condition: sel\n", "invalid_value"),
+        ("impossible calendar date", SIMPLE + "date: 2020-13-45\n", "invalid_yaml"),
     ],
 )
 def test_structured_rejections(name: str, text: str, code: str) -> None:

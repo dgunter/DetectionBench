@@ -238,5 +238,55 @@
       "Description equals 'Rubeus'",
       "CommandLine contains any of 'asreproast ', 'dump /service:krbtgt ', 'dump /luid:0x', 'kerberoast ', \u2026 (11 more)"
     ]
+  },
+  "lint": {
+    "value": "clean",
+    "checks": {
+      "title": "pass",
+      "id": "pass",
+      "status": "pass",
+      "description": "pass",
+      "references": "pass",
+      "level": "pass",
+      "falsepositives": "pass",
+      "logsource": "pass",
+      "selections": "pass",
+      "attack_techniques": "pass",
+      "attack_tactics": "pass",
+      "attack_software_groups": "pass",
+      "date": "pass"
+    },
+    "findings": []
+  },
+  "attack": {
+    "techniques": [
+      [
+        "T1003",
+        "valid",
+        null
+      ],
+      [
+        "T1558.003",
+        "valid",
+        null
+      ],
+      [
+        "T1550.003",
+        "valid",
+        null
+      ]
+    ],
+    "tactics": [
+      [
+        "credential-access",
+        "valid"
+      ],
+      [
+        "lateral-movement",
+        "valid"
+      ]
+    ],
+    "unvalidated": [],
+    "findings": []
   }
 }

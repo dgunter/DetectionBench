@@ -13,6 +13,9 @@ from typing import Any
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
+from app.pipeline.attack import load_attack_dataset
+from app.pipeline.attack_map import map_attack_tags
+from app.pipeline.lint import lint_rule
 from app.pipeline.parse import MAX_RULE_BYTES, ParseError, parse_rule
 from app.pipeline.pyramid import classify as classify_pyramid
 from app.pipeline.scope import describe
@@ -32,6 +35,7 @@ def run_pipeline(rule_text: str) -> dict[str, Any]:
         return {"ok": False, "error": exc.to_dict(), "ast": None, "scope": None, "pyramid": None, "lint": None, "attack": None}
 
     ir = parsed.ir
+    dataset = load_attack_dataset()
     return {
         "ok": True,
         "error": None,
@@ -48,9 +52,8 @@ def run_pipeline(rule_text: str) -> dict[str, Any]:
         },
         "scope": describe(ir).to_dict(),
         "pyramid": classify_pyramid(ir).to_dict(),
-        # Filled in by later pipeline stages.
-        "lint": None,
-        "attack": None,
+        "lint": lint_rule(parsed.raw, ir, list(parsed.rule.detection.detections), parsed.metadata_errors, dataset).to_dict(),
+        "attack": map_attack_tags(ir.metadata.tags, dataset).to_dict(),
     }
 
 

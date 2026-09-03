@@ -259,5 +259,50 @@
     "outline": [
       "query contains any of 'pool.minexmr.com', 'fr.minexmr.com', 'de.minexmr.com', 'sg.minexmr.com', \u2026 (16 more)"
     ]
+  },
+  "lint": {
+    "value": "clean",
+    "checks": {
+      "title": "pass",
+      "id": "pass",
+      "status": "pass",
+      "description": "pass",
+      "references": "pass",
+      "level": "pass",
+      "falsepositives": "pass",
+      "logsource": "pass",
+      "selections": "pass",
+      "attack_techniques": "pass",
+      "attack_tactics": "pass",
+      "attack_software_groups": "pass",
+      "date": "pass"
+    },
+    "findings": []
+  },
+  "attack": {
+    "techniques": [
+      [
+        "T1496",
+        "valid",
+        null
+      ],
+      [
+        "T1567",
+        "valid",
+        null
+      ]
+    ],
+    "tactics": [
+      [
+        "impact",
+        "valid"
+      ],
+      [
+        "exfiltration",
+        "valid"
+      ]
+    ],
+    "unvalidated": [],
+    "findings": []
   }
 }

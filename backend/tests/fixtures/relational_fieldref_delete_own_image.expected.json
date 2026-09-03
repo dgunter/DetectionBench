@@ -48,5 +48,35 @@
     "outline": [
       "TargetFilename equals the value of field 'Image'"
     ]
+  },
+  "lint": {
+    "value": "clean",
+    "checks": {
+      "title": "pass",
+      "id": "pass",
+      "status": "pass",
+      "description": "pass",
+      "references": "pass",
+      "level": "pass",
+      "falsepositives": "pass",
+      "logsource": "pass",
+      "selections": "pass",
+      "attack_techniques": "pass",
+      "attack_tactics": "pass",
+      "attack_software_groups": "pass",
+      "date": "pass"
+    },
+    "findings": []
+  },
+  "attack": {
+    "techniques": [],
+    "tactics": [
+      [
+        "stealth",
+        "valid"
+      ]
+    ],
+    "unvalidated": [],
+    "findings": []
   }
 }

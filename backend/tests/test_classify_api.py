@@ -25,7 +25,8 @@ def test_classify_returns_every_card_slot(authed_client) -> None:
     assert ast["metadata"]["title"] == "Process Creation Using Sysnative Folder"
     assert body["scope"]["filter_count"] == 2
     assert body["pyramid"]["tier"] == 4 and body["pyramid"]["provenance"] == "deterministic:ast"
-    assert body["lint"] is None and body["attack"] is None
+    assert body["lint"]["provenance"] == "deterministic:metadata" and body["lint"]["counts"]["error"] == 0
+    assert body["attack"]["techniques"][0]["id"] == "T1055" and body["attack"]["provenance"] == "deterministic:metadata"
 
 
 def test_parse_failure_is_a_result_not_an_http_error(authed_client) -> None:

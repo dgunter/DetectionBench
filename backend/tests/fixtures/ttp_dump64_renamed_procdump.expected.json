@@ -117,5 +117,47 @@
       "OriginalFileName equals 'procdump'",
       "CommandLine contains any of ' -ma ', ' -mp '"
     ]
+  },
+  "lint": {
+    "value": "1 warning",
+    "checks": {
+      "title": "pass",
+      "id": "pass",
+      "status": "pass",
+      "description": "pass",
+      "references": "pass",
+      "level": "pass",
+      "falsepositives": "warning",
+      "logsource": "pass",
+      "selections": "pass",
+      "attack_techniques": "pass",
+      "attack_tactics": "pass",
+      "attack_software_groups": "pass",
+      "date": "pass"
+    },
+    "findings": [
+      [
+        "falsepositives",
+        "warning",
+        "falsepositives"
+      ]
+    ]
+  },
+  "attack": {
+    "techniques": [
+      [
+        "T1003.001",
+        "valid",
+        null
+      ]
+    ],
+    "tactics": [
+      [
+        "credential-access",
+        "valid"
+      ]
+    ],
+    "unvalidated": [],
+    "findings": []
   }
 }

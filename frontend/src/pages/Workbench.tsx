@@ -2,6 +2,9 @@ import { useCallback, useState } from "react"
 import { Link } from "react-router-dom"
 import { AiPanel } from "@/components/AiPanel"
 import { AstCard } from "@/components/cards/AstCard"
+import { AttackCard } from "@/components/cards/AttackCard"
+import { LintCard } from "@/components/cards/LintCard"
+import { PyramidCard } from "@/components/cards/PyramidCard"
 import { ExampleChips } from "@/components/ExampleChips"
 import { ScopeCard } from "@/components/cards/ScopeCard"
 import { CARD_TOOLTIPS, ResultCard, type CardState } from "@/components/ResultCard"
@@ -67,35 +70,37 @@ export function Workbench({ onLoggedOut }: { onLoggedOut: () => void }) {
           </nav>
         </header>
 
-        <section className="border-b bg-muted/30 px-4 py-3">
-          <form
-            className="flex flex-col gap-2 md:flex-row md:items-end"
-            onSubmit={(e) => {
-              e.preventDefault()
-              void classify()
-            }}
-          >
-            <label className="flex flex-1 flex-col gap-1 text-xs text-muted-foreground">
-              Paste a Sigma rule (YAML, one rule, 64 KB max)
-              <Textarea
-                value={rule}
-                onChange={(e) => setRule(e.target.value)}
-                onKeyDown={(e) => {
-                  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") void classify()
-                }}
-                spellCheck={false}
-                className="min-h-28 font-mono text-xs"
-                placeholder={"title: ...\nlogsource:\n  category: process_creation\n  product: windows\ndetection:\n  selection:\n    Image|endswith: '\\\\evil.exe'\n  condition: selection"}
-                aria-label="Sigma rule"
-              />
-            </label>
-            <div className="flex items-center gap-2">
-              <Button type="submit" disabled={!rule.trim() || phase === "loading"}>
-                {phase === "loading" ? "Classifying…" : "Classify"}
-              </Button>
-            </div>
-          </form>
-          <div className="mt-2">
+        <main className="grid flex-1 gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)_minmax(0,0.85fr)] lg:items-start">
+          {/* Column 1: the rule. Long rules scroll inside the editor instead of pushing the results down. */}
+          <section className="flex flex-col gap-2 lg:sticky lg:top-4 lg:max-h-[calc(100svh-2rem)]">
+            <form
+              className="flex min-h-0 flex-1 flex-col gap-2"
+              onSubmit={(e) => {
+                e.preventDefault()
+                void classify()
+              }}
+            >
+              <label className="flex min-h-0 flex-1 flex-col gap-1 text-xs text-muted-foreground">
+                Paste a Sigma rule (YAML, one rule, 64 KB max)
+                <Textarea
+                  value={rule}
+                  onChange={(e) => setRule(e.target.value)}
+                  onKeyDown={(e) => {
+                    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") void classify()
+                  }}
+                  spellCheck={false}
+                  className="min-h-[24rem] flex-1 resize-none overflow-auto font-mono text-xs lg:max-h-[calc(100svh-11rem)]"
+                  placeholder={"title: ...\nlogsource:\n  category: process_creation\n  product: windows\ndetection:\n  selection:\n    Image|endswith: '\\\\evil.exe'\n  condition: selection"}
+                  aria-label="Sigma rule"
+                />
+              </label>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-xs text-muted-foreground">{rule.trim() ? `${rule.length.toLocaleString()} characters` : "\u00a0"}</span>
+                <Button type="submit" disabled={!rule.trim() || phase === "loading"}>
+                  {phase === "loading" ? "Classifying…" : "Classify"}
+                </Button>
+              </div>
+            </form>
             <ExampleChips
               disabled={phase === "loading"}
               onPick={(yaml) => {
@@ -105,32 +110,39 @@ export function Workbench({ onLoggedOut }: { onLoggedOut: () => void }) {
                 setTransportError(null)
               }}
             />
-          </div>
-          {transportError && (
-            <p className="mt-2 text-sm text-destructive" role="alert">
-              {transportError}
-            </p>
-          )}
-        </section>
+            {transportError && (
+              <p className="text-sm text-destructive" role="alert">
+                {transportError}
+              </p>
+            )}
+          </section>
 
-        <main className="grid flex-1 gap-3 p-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-          <div className="grid gap-3 md:grid-cols-2">
+          {/* Column 2: the five deterministic cards, in pipeline order. */}
+          <div className="flex flex-col gap-3">
             <AstCard state={astState} ast={result?.ast ?? null} error={result?.error ?? null} />
             <ScopeCard state={dependentState(Boolean(result?.scope))} scope={result?.scope ?? null} />
-            <ResultCard title="Pyramid of Pain" tooltip={CARD_TOOLTIPS.pyramid} state={dependentState(false)} />
-            <ResultCard title="Lint results" tooltip={CARD_TOOLTIPS.lint} state={dependentState(false)} />
-            <ResultCard title="ATT&CK mapping" tooltip={CARD_TOOLTIPS.attack} state={dependentState(false)} className="md:col-span-2" />
+            <PyramidCard state={dependentState(Boolean(result?.pyramid))} pyramid={result?.pyramid ?? null} />
+            <LintCard state={dependentState(Boolean(result?.lint))} lint={result?.lint ?? null} />
+            {parsed && result?.attack ? (
+              <AttackCard mapping={result.attack} />
+            ) : (
+              <ResultCard title="ATT&CK mapping" tooltip={CARD_TOOLTIPS.attack} state={dependentState(false)} />
+            )}
           </div>
-          <AiPanel
-            hasRule={parsed}
-            rule={rule}
-            onUseCandidate={(yaml) => {
-              setRule(yaml)
-              setPhase("empty")
-              setResult(null)
-              setTransportError(null)
-            }}
-          />
+
+          {/* Column 3: the AI second opinion, never merged into column 2. */}
+          <div className="lg:sticky lg:top-4">
+            <AiPanel
+              hasRule={parsed}
+              rule={rule}
+              onUseCandidate={(yaml) => {
+                setRule(yaml)
+                setPhase("empty")
+                setResult(null)
+                setTransportError(null)
+              }}
+            />
+          </div>
         </main>
       </div>
     </TooltipProvider>

@@ -140,5 +140,47 @@
       "NOT (events where) [selection]",
       "id.orig_h is inside network any of '::1/128', '10.0.0.0/8', '127.0.0.0/8', '172.16.0.0/12', \u2026 (5 more)"
     ]
+  },
+  "lint": {
+    "value": "1 warning",
+    "checks": {
+      "title": "pass",
+      "id": "pass",
+      "status": "pass",
+      "description": "pass",
+      "references": "warning",
+      "level": "pass",
+      "falsepositives": "pass",
+      "logsource": "pass",
+      "selections": "pass",
+      "attack_techniques": "pass",
+      "attack_tactics": "pass",
+      "attack_software_groups": "pass",
+      "date": "pass"
+    },
+    "findings": [
+      [
+        "references",
+        "warning",
+        "references"
+      ]
+    ]
+  },
+  "attack": {
+    "techniques": [
+      [
+        "T1021.001",
+        "valid",
+        null
+      ]
+    ],
+    "tactics": [
+      [
+        "lateral-movement",
+        "valid"
+      ]
+    ],
+    "unvalidated": [],
+    "findings": []
   }
 }

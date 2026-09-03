@@ -93,7 +93,9 @@ function AstTree({ ast }: { ast: AstResult }) {
   )
 }
 
+/** Show values as the author wrote them (Sigma single quotes), not JSON-escaped. */
 function formatValues(values: string[]): string {
-  if (values.length === 1) return JSON.stringify(values[0])
-  return `[${values.map((v) => JSON.stringify(v)).join(", ")}]`
+  const q = (v: string) => `'${v.replace(/'/g, "\\'")}'`
+  if (values.length === 1) return q(values[0])
+  return `[${values.map(q).join(", ")}]`
 }

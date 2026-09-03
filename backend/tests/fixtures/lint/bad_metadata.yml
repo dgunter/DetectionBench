@@ -1,0 +1,23 @@
+title: Bad
+id: not-a-uuid
+status: bogus
+description: Bad
+date: yesterday
+tags:
+    - attack.t1562.002
+    - attack.t9999
+    - attack.defense-evasion
+    - attack.not-a-tactic
+    - attack.s0002
+    - attack.g0016
+logsource:
+    service: security
+detection:
+    selection:
+        Image|endswith: '\evil.exe'
+    unused_selection:
+        CommandLine|contains: 'x'
+    condition: selection
+falsepositives:
+    - Unknown
+level: bogus
