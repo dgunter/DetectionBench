@@ -23,7 +23,10 @@ from typing import Any
 MAX_ANALYSIS_STRING = 2000
 MAX_ANALYSIS_ITEMS = 100
 
-_DELIMITER = re.compile(r"<\s*/?\s*(rule|analysis)\s*>", re.IGNORECASE)
+# Optional "/" grouped with its trailing whitespace so the two whitespace runs
+# cannot trade characters back and forth (that backtracking is quadratic on
+# long whitespace runs; the rule text is attacker-supplied and up to 64 KB).
+_DELIMITER = re.compile(r"<\s*(?:/\s*)?(rule|analysis)\s*>", re.IGNORECASE)
 
 SYSTEM = """You are the AI second-opinion panel inside DetectionBench, a tool that evaluates Sigma detection rules.
 

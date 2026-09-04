@@ -41,7 +41,7 @@ jobs:
         run: |
           npm ci --no-audit --no-fund --silent
           npm run typecheck
-          npx vitest run
+          npx vitest run --coverage
       - name: Frontend lint
         working-directory: frontend
         run: npm run lint

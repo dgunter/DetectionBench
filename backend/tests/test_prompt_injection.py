@@ -103,7 +103,8 @@ def test_sanitize_walks_nested_analysis_and_caps_lengths():
     assert out["b"][0] == "[analysis-tag removed]"
     assert out["b"][1]["c"] == "Z" * MAX_ANALYSIS_STRING + "…"
     assert out["n"] == 4
-    assert len(out["many"]) == 101 and out["many"][-1] == "… (50 more)"
+    assert len(out["many"]) == 101
+    assert out["many"][-1] == "… (50 more)"
 
 
 # --- (a) closing the delimiter early from metadata --------------------------------
@@ -114,7 +115,8 @@ def test_description_cannot_close_the_rule_block_or_forge_the_analysis(llm):
     assert_parses(rule)
     body, prompt = prompt_for(llm, rule)
     rule_block, analysis_block = blocks(prompt)
-    assert "[rule-tag removed]" in rule_block and "[analysis-tag removed]" in rule_block
+    assert "[rule-tag removed]" in rule_block
+    assert "[analysis-tag removed]" in rule_block
     assert INSTRUCTION in rule_block  # still visible, as data
     assert INSTRUCTION not in analysis_block
     # The forged tier never displaces the real one: the only analysis is ours.
@@ -182,7 +184,9 @@ def test_field_and_logsource_names_carrying_tags_are_neutralized_in_the_analysis
     )
     result = assert_parses(rule)
     raw = analysis_context(result)
-    assert "</ANALYSIS >" in raw["pyramid_rationale"] and "</analysis>" in raw["scope_summary"]  # the raw pipeline output does carry them
+    # the raw pipeline output does carry them
+    assert "</ANALYSIS >" in raw["pyramid_rationale"]
+    assert "</analysis>" in raw["scope_summary"]
     _, prompt = prompt_for(llm, rule)
     _, analysis_block = blocks(prompt)
     assert not TAG.search(analysis_block)
@@ -210,7 +214,8 @@ def test_giant_logsource_value_is_truncated_in_the_analysis(llm):
     _, prompt = prompt_for(llm, rule)
     _, analysis_block = blocks(prompt)
     summary = json.loads(analysis_block)["scope_summary"]
-    assert len(summary) == MAX_ANALYSIS_STRING + 1 and summary.endswith("…")
+    assert len(summary) == MAX_ANALYSIS_STRING + 1
+    assert summary.endswith("…")
 
 
 def test_oversized_rule_is_rejected_before_any_prompt_is_built(llm):
@@ -247,9 +252,12 @@ def test_candidate_output_is_data_scored_by_the_pipeline_not_obeyed(llm):
     assert scored["strategy"] == hostile_strategy
     assert scored["yaml"] == parses
     # Scored exactly like any other rule: same tier as the original, so "preserved".
-    assert scored["verdict"] == "preserved" and scored["score"]["tier"] == 4
-    assert junk["verdict"] == "parse_failed" and junk["is_win"] is False
-    assert hash_rule["verdict"] == "regressed" and hash_rule["score"]["tier"] == 1
+    assert scored["verdict"] == "preserved"
+    assert scored["score"]["tier"] == 4
+    assert junk["verdict"] == "parse_failed"
+    assert junk["is_win"] is False
+    assert hash_rule["verdict"] == "regressed"
+    assert hash_rule["score"]["tier"] == 1
     assert body["original"]["tier"] == 4
 
 
@@ -261,9 +269,11 @@ def test_suggest_attack_names_come_from_the_dataset_for_known_ids(llm):
     body, _ = prompt_for(llm, sigma(), "/api/llm/suggest-attack", data)
     by_id = {s["id"]: s for s in body["suggestions"]}
     assert by_id["T1055"]["name"] == "Process Injection"  # dataset wins over the model's name
-    assert by_id["T1055"]["status"] == "valid" and by_id["T1055"]["url"].startswith("https://attack.mitre.org/")
+    assert by_id["T1055"]["status"] == "valid"
+    assert by_id["T1055"]["url"].startswith("https://attack.mitre.org/")
     assert by_id["T1055"]["rationale"] == "<b>r</b>"  # echoed as text for the frontend's text node
-    assert by_id["T9999"]["status"] == "unknown" and by_id["T9999"]["url"] is None
+    assert by_id["T9999"]["status"] == "unknown"
+    assert by_id["T9999"]["url"] is None
     assert by_id["T9999"]["name"] == "Made Up <i>x</i>"  # only an unknown ID echoes the model's name
 
 

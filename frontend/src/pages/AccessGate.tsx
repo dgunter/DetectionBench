@@ -31,7 +31,7 @@ export function AccessGate({ onAuthenticated }: Readonly<{ onAuthenticated: () =
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl">
             <img src="/logo.png" alt="" className="size-7" />
-            DetectionBench
+            <span>DetectionBench</span>
           </CardTitle>
           <CardDescription>Enter your access token to continue.</CardDescription>
         </CardHeader>
