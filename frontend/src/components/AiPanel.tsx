@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { AlertTriangle, ExternalLink, Loader2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { ApiError, api } from "@/lib/api"
 import { TOOLTIPS } from "@/lib/copy"
+import { RequestGuard, isAbortError } from "@/lib/inflight"
 import {
   describeDelta,
   describeLlmError,
@@ -47,11 +48,15 @@ export function AiPanel({ hasRule, rule, onUseCandidate }: Readonly<Props>) {
   const [error, setError] = useState<string | null>(null)
   const [budget, setBudget] = useState<{ remaining: number; limit: number } | null>(null)
   const [streamText, setStreamText] = useState("")
+  const guard = useRef(new RequestGuard())
 
   const ready = hasRule && Boolean(rule?.trim())
 
-  // Reset when the rule changes so a stale answer never sits next to a new rule.
+  // Reset when the rule changes so a stale answer never sits next to a new rule:
+  // clear what is shown and abort any request still in flight for the old rule.
   useEffect(() => {
+    guard.current.cancel()
+    setBusy(null)
     setResult(null)
     setError(null)
     setStreamText("")
@@ -63,6 +68,7 @@ export function AiPanel({ hasRule, rule, onUseCandidate }: Readonly<Props>) {
 
   async function run(action: LlmAction) {
     if (!ready || busy || !rule) return
+    const req = guard.current.begin()
     setBusy(action)
     setError(null)
     setResult(null)
@@ -72,24 +78,33 @@ export function AiPanel({ hasRule, rule, onUseCandidate }: Readonly<Props>) {
         let received = ""
         try {
           const text = await api.llmExplainStream(rule, model, (delta) => {
+            if (!req.isCurrent()) return
             received += delta
             setStreamText(received)
-          })
-          setResult({ action: "explain", model, provenance: "inferred:llm", confidence: "low", text })
+          }, req.signal)
+          if (req.isCurrent()) setResult({ action: "explain", model, provenance: "inferred:llm", confidence: "low", text })
         } catch (err) {
           // Single-shot is the guaranteed fallback when the stream itself can't be opened.
-          if (err instanceof ApiError || received) throw err
-          setResult(await api.llmExplain(rule, model))
+          if (err instanceof ApiError || received || isAbortError(err)) throw err
+          const single = await api.llmExplain(rule, model, req.signal)
+          if (req.isCurrent()) setResult(single)
         } finally {
-          setStreamText("")
+          if (req.isCurrent()) setStreamText("")
         }
-      } else if (action === "suggest_attack") setResult(await api.llmSuggestAttack(rule, model))
-      else setResult(await api.llmCandidates(rule, model))
+      } else if (action === "suggest_attack") {
+        const suggested = await api.llmSuggestAttack(rule, model, req.signal)
+        if (req.isCurrent()) setResult(suggested)
+      } else {
+        const candidates = await api.llmCandidates(rule, model, req.signal)
+        if (req.isCurrent()) setResult(candidates)
+      }
     } catch (err) {
+      // A superseded request's outcome belongs to a rule that is no longer shown.
+      if (!req.isCurrent() || isAbortError(err)) return
       if (err instanceof ApiError) setError(describeLlmError(err.status, err.code, err.message))
       else setError("Network error.")
     } finally {
-      setBusy(null)
+      if (req.isCurrent()) setBusy(null)
     }
   }
 
