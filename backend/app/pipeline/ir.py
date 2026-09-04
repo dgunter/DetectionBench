@@ -2,7 +2,7 @@
 
 Built once from pySigma's fully resolved condition tree (never from the raw
 ``detection`` dict, which would lose intra-selection AND/OR structure), then
-walked by every downstream card: parsed AST, scope & match, Pyramid of Pain,
+walked by every downstream card: parsed structure, scope & match, Pyramid of Pain,
 lint, ATT&CK.
 """
 

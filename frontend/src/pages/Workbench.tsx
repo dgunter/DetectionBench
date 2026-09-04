@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react"
 import { Link } from "react-router-dom"
 import { AiPanel } from "@/components/AiPanel"
-import { AstCard } from "@/components/cards/AstCard"
+import { StructureCard } from "@/components/cards/StructureCard"
 import { AttackCard } from "@/components/cards/AttackCard"
 import { LintCard } from "@/components/cards/LintCard"
 import { PyramidCard } from "@/components/cards/PyramidCard"
@@ -45,10 +45,10 @@ export function Workbench({ onLoggedOut }: Readonly<{ onLoggedOut: () => void }>
     }
   }, [rule, phase, onLoggedOut])
 
-  // Card states: everything loads together; on a parse failure the AST card shows the error and the rest wait.
+  // Card states: everything loads together; on a parse failure the Parsed structure card shows the error and the rest wait.
   const parsed = phase === "done" && result?.ok === true
   const parseFailed = phase === "done" && result !== null && !result.ok
-  const astState: CardState = phase === "empty" ? "empty" : phase === "loading" ? "loading" : parseFailed ? "error" : parsed ? "ready" : "empty"
+  const structureState: CardState = phase === "empty" ? "empty" : phase === "loading" ? "loading" : parseFailed ? "error" : parsed ? "ready" : "empty"
   const dependentState = (ready: boolean): CardState =>
     phase === "empty" ? "empty" : phase === "loading" ? "loading" : parseFailed ? "waiting" : ready ? "ready" : "pending"
 
@@ -119,7 +119,7 @@ export function Workbench({ onLoggedOut }: Readonly<{ onLoggedOut: () => void }>
 
           {/* Column 2: the five deterministic cards, in pipeline order. */}
           <div className="flex flex-col gap-3">
-            <AstCard state={astState} ast={result?.ast ?? null} error={result?.error ?? null} />
+            <StructureCard state={structureState} structure={result?.structure ?? null} error={result?.error ?? null} />
             <ScopeCard state={dependentState(Boolean(result?.scope))} scope={result?.scope ?? null} />
             <PyramidCard state={dependentState(Boolean(result?.pyramid))} pyramid={result?.pyramid ?? null} />
             <LintCard state={dependentState(Boolean(result?.lint))} lint={result?.lint ?? null} />

@@ -1,8 +1,8 @@
 // Pure helpers for rendering the parsed condition tree. No React here so they can be unit-tested.
 
-import type { AstNode, Confidence, CriterionNode } from "./types"
+import type { StructureNode, Confidence, CriterionNode } from "./types"
 
-export interface AstLine {
+export interface StructureLine {
   /** Position in the tree ("0", "0.1", "0.1.2" …): a stable identity for rendering. */
   path: string
   depth: number
@@ -15,13 +15,13 @@ export interface AstLine {
 const OP_LABEL: Record<"and" | "or" | "not", string> = { and: "AND", or: "OR", not: "NOT" }
 
 /** Flatten the tree depth-first into renderable lines. */
-export function flattenAst(node: AstNode, depth = 0, out: AstLine[] = [], path = "0"): AstLine[] {
+export function flattenStructure(node: StructureNode, depth = 0, out: StructureLine[] = [], path = "0"): StructureLine[] {
   if (node.kind === "criterion") {
     out.push({ path, depth, kind: "criterion", label: criterionLabel(node), selection: node.selection, criterion: node })
     return out
   }
   out.push({ path, depth, kind: "boolean", label: OP_LABEL[node.op], selection: node.selection })
-  node.children.forEach((child, i) => flattenAst(child, depth + 1, out, `${path}.${i}`))
+  node.children.forEach((child, i) => flattenStructure(child, depth + 1, out, `${path}.${i}`))
   return out
 }
 
@@ -31,7 +31,7 @@ export function criterionLabel(c: CriterionNode): string {
   return [c.field, ...c.modifiers].join("|")
 }
 
-export function countCriteria(node: AstNode): number {
+export function countCriteria(node: StructureNode): number {
   return node.kind === "criterion" ? 1 : node.children.reduce((n, c) => n + countCriteria(c), 0)
 }
 
@@ -63,8 +63,8 @@ export function confidenceTone(confidence: Confidence): string {
 
 export function provenanceLabel(provenance: string): string {
   switch (provenance) {
-    case "deterministic:ast":
-      return "Deterministic · AST"
+    case "deterministic:static":
+      return "Deterministic · static analysis"
     case "deterministic:metadata":
       return "Deterministic · metadata"
     case "inferred:llm":

@@ -42,6 +42,9 @@ jobs:
           npm ci --no-audit --no-fund --silent
           npm run typecheck
           npx vitest run
+      - name: Frontend lint
+        working-directory: frontend
+        run: npm run lint
 
       # Push to main -> branch analysis; pull_request -> PR analysis
       # (the scanner auto-detects the PR number from the Actions event and

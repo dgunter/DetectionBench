@@ -5,14 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
-import { confidenceTone, provenanceLabel } from "@/lib/ast"
+import { confidenceTone, provenanceLabel } from "@/lib/structure"
 import type { Confidence } from "@/lib/types"
 
 export type CardState = "empty" | "loading" | "waiting" | "error" | "ready" | "pending"
 
 /** One-line copy from the methodology page, shown on the info icon. */
 export const CARD_TOOLTIPS = {
-  ast: "The rule's logic, broken into its structural pieces.",
+  structure: "The rule's logic broken into its structural pieces — the intermediate representation (IR) produced by static analysis of the rule.",
   scope: "Plain-language read of what this rule actually matches, derived from the same parsed logic.",
   pyramid: "How durable this detection is — see 'How this works' for the full framework.",
   lint: "Metadata completeness check — separate from whether the detection logic itself is strong.",

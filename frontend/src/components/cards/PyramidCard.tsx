@@ -1,7 +1,7 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { CARD_TOOLTIPS, ConfidenceBadge, ResultCard, type CardState } from "@/components/ResultCard"
-import { tierTone } from "@/lib/ast"
+import { tierTone } from "@/lib/structure"
 import { TIER_STEPS } from "@/lib/lint"
 import { cn } from "@/lib/utils"
 import type { Advisory, PyramidResult } from "@/lib/types"

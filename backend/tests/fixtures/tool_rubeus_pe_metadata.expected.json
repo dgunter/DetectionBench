@@ -208,7 +208,7 @@
     "tier": 5,
     "value": "Tools",
     "confidence": "medium",
-    "provenance": "deterministic:ast",
+    "provenance": "deterministic:static",
     "categories": [
       "tool"
     ],

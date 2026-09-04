@@ -64,7 +64,7 @@ class PyramidResult:
     steps: tuple[str, ...]
     categories: tuple[str, ...]
     advisories: tuple[Advisory, ...]
-    provenance: str = "deterministic:ast"
+    provenance: str = "deterministic:static"
 
     @property
     def value(self) -> str:

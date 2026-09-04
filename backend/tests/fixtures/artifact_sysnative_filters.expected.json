@@ -140,7 +140,7 @@
     "tier": 4,
     "value": "Host/network artifacts",
     "confidence": "high",
-    "provenance": "deterministic:ast",
+    "provenance": "deterministic:static",
     "categories": [
       "host_artifact"
     ],

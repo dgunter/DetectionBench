@@ -97,7 +97,7 @@ def test_resolution(name: str, root, tier: int, confidence: str) -> None:
 def test_classify_result_shape_and_provenance() -> None:
     result = classify(ir(AND(CMD, NOT(HASH))))
     d = result.to_dict()
-    assert d["provenance"] == "deterministic:ast"
+    assert d["provenance"] == "deterministic:static"
     assert d["tier"] == 4
     assert d["value"] == "Host/network artifacts"
     assert d["confidence"] == "high"
