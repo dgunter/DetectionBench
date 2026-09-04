@@ -113,7 +113,7 @@ export type SseEvent =
  */
 export function parseSseBuffer(buffer: string): { events: SseEvent[]; rest: string } {
   const events: SseEvent[] = []
-  const normalized = buffer.replace(/\r\n/g, "\n")
+  const normalized = buffer.replaceAll("\r\n", "\n")
   const lastBreak = normalized.lastIndexOf("\n\n")
   if (lastBreak === -1) return { events, rest: normalized }
   const complete = normalized.slice(0, lastBreak)

@@ -31,7 +31,7 @@ export function HowItWorks() {
         A Sigma rule is a small YAML document with two halves. The top half is metadata: a title, a unique ID, a status (experimental, test, stable), a description, links to the research it came from, the ATT&amp;CK techniques it claims to cover, a severity level, and a note about what could trigger it innocently. The bottom half is the detection itself. Here is a lightly trimmed real rule from the public Sigma repository:
       </p>
       <pre className="mt-3 overflow-x-auto rounded-md border bg-muted p-4 text-xs leading-relaxed text-foreground">
-        <code>{`title: Process Creation Using Sysnative Folder
+        <code>{String.raw`title: Process Creation Using Sysnative Folder
 status: test
 description: Detects process creation events that use the Sysnative folder
              (common for CobaltStrike spawns)
@@ -43,10 +43,10 @@ logsource:
     product: windows
 detection:
     selection:
-        - CommandLine|contains: ':\\Windows\\Sysnative\\'
-        - Image|contains: ':\\Windows\\Sysnative\\'
+        - CommandLine|contains: ':\Windows\Sysnative\'
+        - Image|contains: ':\Windows\Sysnative\'
     filter_main_ngen:
-        Image|endswith: '\\ngen.exe'
+        Image|endswith: '\ngen.exe'
         CommandLine|contains: 'install'
     condition: selection and not filter_main_ngen`}</code>
       </pre>

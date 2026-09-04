@@ -16,17 +16,22 @@ def test_classify_returns_every_card_slot(authed_client) -> None:
     r = authed_client.post("/api/classify", json={"rule": SYSNATIVE})
     assert r.status_code == 200
     body = r.json()
-    assert body["ok"] is True and body["error"] is None
+    assert body["ok"] is True
+    assert body["error"] is None
     assert set(body) == {"ok", "error", "ast", "scope", "pyramid", "lint", "attack"}
     ast = body["ast"]
     assert ast["provenance"] == "deterministic:ast"
-    assert ast["root"]["kind"] == "boolean" and ast["root"]["op"] == "and"
+    assert ast["root"]["kind"] == "boolean"
+    assert ast["root"]["op"] == "and"
     assert ast["selections"] == ["selection", "filter_main_ngen", "filter_optional_xampp"]
     assert ast["metadata"]["title"] == "Process Creation Using Sysnative Folder"
     assert body["scope"]["filter_count"] == 2
-    assert body["pyramid"]["tier"] == 4 and body["pyramid"]["provenance"] == "deterministic:ast"
-    assert body["lint"]["provenance"] == "deterministic:metadata" and body["lint"]["counts"]["error"] == 0
-    assert body["attack"]["techniques"][0]["id"] == "T1055" and body["attack"]["provenance"] == "deterministic:metadata"
+    assert body["pyramid"]["tier"] == 4
+    assert body["pyramid"]["provenance"] == "deterministic:ast"
+    assert body["lint"]["provenance"] == "deterministic:metadata"
+    assert body["lint"]["counts"]["error"] == 0
+    assert body["attack"]["techniques"][0]["id"] == "T1055"
+    assert body["attack"]["provenance"] == "deterministic:metadata"
 
 
 def test_parse_failure_is_a_result_not_an_http_error(authed_client) -> None:
@@ -36,12 +41,14 @@ def test_parse_failure_is_a_result_not_an_http_error(authed_client) -> None:
     assert body["ok"] is False
     assert body["error"]["code"] == "invalid_yaml"
     assert body["error"]["detail"].startswith("line 2")
-    assert body["ast"] is None and body["scope"] is None
+    assert body["ast"] is None
+    assert body["scope"] is None
 
 
 def test_multi_document_paste_rejected_structurally(authed_client) -> None:
     body = authed_client.post("/api/classify", json={"rule": SYSNATIVE + "\n---\n" + SYSNATIVE}).json()
-    assert body["ok"] is False and body["error"]["code"] == "multiple_rules"
+    assert body["ok"] is False
+    assert body["error"]["code"] == "multiple_rules"
 
 
 def test_oversize_body_is_413_before_parsing(authed_client) -> None:

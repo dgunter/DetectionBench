@@ -98,8 +98,11 @@ def test_classify_result_shape_and_provenance() -> None:
     result = classify(ir(AND(CMD, NOT(HASH))))
     d = result.to_dict()
     assert d["provenance"] == "deterministic:ast"
-    assert d["tier"] == 4 and d["value"] == "Host/network artifacts" and d["confidence"] == "high"
-    assert d["rationale"] and d["steps"]
+    assert d["tier"] == 4
+    assert d["value"] == "Host/network artifacts"
+    assert d["confidence"] == "high"
+    assert d["rationale"]
+    assert d["steps"]
 
 
 def test_filter_advisory_lists_filters_and_names_cheapest() -> None:
@@ -118,7 +121,8 @@ def test_no_filter_advisory_without_filters() -> None:
 def test_routing_advisory_does_not_change_score() -> None:
     result = classify(ir(AND(CHANNEL, PE_TOOL)))
     kinds = [a.kind for a in result.advisories]
-    assert "routing" in kinds and result.tier == 4
+    assert "routing" in kinds
+    assert result.tier == 4
 
 
 def test_bare_not_advisory() -> None:
@@ -130,15 +134,19 @@ def test_bare_not_advisory() -> None:
 def test_allowlist_in_disguise_is_scored_and_advised_not_filtered() -> None:
     result = classify(ir(AND(EVENTID, NOT(OR(IP, IP)), selection=None)))
     kinds = [a.kind for a in result.advisories]
-    assert "bare_not" in kinds and "filter" not in kinds  # the NOT is scored, so it is not an excluded filter
-    assert result.tier == 2 and result.confidence == "medium"
-    assert "allowlist" in result.steps[0] and "primary logic" in result.steps[0]
+    assert "bare_not" in kinds
+    assert "filter" not in kinds  # the NOT is scored, so it is not an excluded filter
+    assert result.tier == 2
+    assert result.confidence == "medium"
+    assert "allowlist" in result.steps[0]
+    assert "primary logic" in result.steps[0]
 
 
 def test_allowlist_in_disguise_does_not_trigger_for_real_positives() -> None:
     result = classify(ir(AND(EVENTID, CMD, NOT(IP))))
     kinds = [a.kind for a in result.advisories]
-    assert "filter" in kinds and "bare_not" not in kinds
+    assert "filter" in kinds
+    assert "bare_not" not in kinds
 
 
 @pytest.mark.parametrize(

@@ -36,7 +36,15 @@ def _set_cookie(response: Response, value: str) -> None:
     )
 
 
-@router.post("/verify", status_code=204)
+@router.post(
+    "/verify",
+    status_code=204,
+    responses={
+        401: {"description": "Invalid access token"},
+        429: {"description": "Too many attempts; retry in a minute"},
+        503: {"description": "Access gate is not configured"},
+    },
+)
 def verify(body: VerifyRequest, request: Request, response: Response) -> Response:
     settings = get_settings()
     if not settings.auth_configured:
@@ -62,6 +70,6 @@ class SessionStatus(BaseModel):
     authenticated: bool
 
 
-@router.get("/session", response_model=SessionStatus)
+@router.get("/session")
 def session(request: Request) -> SessionStatus:
     return SessionStatus(authenticated=request_is_authenticated(request, get_settings()))

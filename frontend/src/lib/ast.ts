@@ -3,6 +3,8 @@
 import type { AstNode, Confidence, CriterionNode } from "./types"
 
 export interface AstLine {
+  /** Position in the tree ("0", "0.1", "0.1.2" …): a stable identity for rendering. */
+  path: string
   depth: number
   kind: "boolean" | "criterion"
   label: string
@@ -13,13 +15,13 @@ export interface AstLine {
 const OP_LABEL: Record<"and" | "or" | "not", string> = { and: "AND", or: "OR", not: "NOT" }
 
 /** Flatten the tree depth-first into renderable lines. */
-export function flattenAst(node: AstNode, depth = 0, out: AstLine[] = []): AstLine[] {
+export function flattenAst(node: AstNode, depth = 0, out: AstLine[] = [], path = "0"): AstLine[] {
   if (node.kind === "criterion") {
-    out.push({ depth, kind: "criterion", label: criterionLabel(node), selection: node.selection, criterion: node })
+    out.push({ path, depth, kind: "criterion", label: criterionLabel(node), selection: node.selection, criterion: node })
     return out
   }
-  out.push({ depth, kind: "boolean", label: OP_LABEL[node.op], selection: node.selection })
-  for (const child of node.children) flattenAst(child, depth + 1, out)
+  out.push({ path, depth, kind: "boolean", label: OP_LABEL[node.op], selection: node.selection })
+  node.children.forEach((child, i) => flattenAst(child, depth + 1, out, `${path}.${i}`))
   return out
 }
 

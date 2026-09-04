@@ -60,4 +60,5 @@ def test_describe_criterion_phrases() -> None:
 
 def test_scope_serializes() -> None:
     d = describe(parse_rule((FIXTURES / "hash_imphash_sharpevtmute.yml").read_text()).ir).to_dict()
-    assert d["provenance"] == "deterministic:ast" and d["value"] == d["summary"]
+    assert d["provenance"] == "deterministic:ast"
+    assert d["value"] == d["summary"]

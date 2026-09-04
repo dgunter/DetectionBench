@@ -12,7 +12,7 @@ const STATUS_ICON: Record<LintCheck["status"], { icon: typeof CheckCircle2; tone
   info: { icon: Info, tone: "text-sky-600 dark:text-sky-400" },
 }
 
-export function LintCard({ state, lint }: { state: CardState; lint: LintResult | null }) {
+export function LintCard({ state, lint }: Readonly<{ state: CardState; lint: LintResult | null }>) {
   return (
     <ResultCard
       title="Lint results"

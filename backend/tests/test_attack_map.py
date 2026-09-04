@@ -24,7 +24,9 @@ def test_valid_technique_and_tactic_resolve_cleanly():
 def test_subtechnique_resolves():
     m = map_attack_tags(["attack.t1685.001"], DS)
     (t,) = m.techniques
-    assert t.status == "valid" and t.is_subtechnique and t.id == "T1685.001"
+    assert t.status == "valid"
+    assert t.is_subtechnique
+    assert t.id == "T1685.001"
 
 
 def test_retired_technique_reports_replacement():
@@ -42,7 +44,8 @@ def test_retired_technique_reports_replacement():
 def test_unknown_technique_is_an_error():
     m = map_attack_tags(["attack.t9999"], DS)
     (t,) = m.techniques
-    assert t.status == "unknown" and t.name is None
+    assert t.status == "unknown"
+    assert t.name is None
     f = _by_check(m)["attack_technique_unknown"]
     assert f.severity == "error"
 

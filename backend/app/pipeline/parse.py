@@ -113,10 +113,12 @@ def _as_str(value: Any) -> str | None:
 
 def _as_str_tuple(value: Any) -> tuple[str, ...]:
     if value is None:
-        return ()
-    if isinstance(value, (list, tuple)):
-        return tuple(str(v) for v in value if v is not None)
-    return (str(value),)
+        items: list[Any] = []
+    elif isinstance(value, (list, tuple)):
+        items = [v for v in value if v is not None]
+    else:
+        items = [value]
+    return tuple(str(v) for v in items)
 
 
 def build_metadata(raw: dict[str, Any]) -> Metadata:

@@ -48,7 +48,7 @@ for i in $(seq 1 10); do
   if curl -fsS "$HEALTH_LOCAL"; then ok=1; echo; break; fi
   sleep 1
 done
-if [ "$ok" -ne 1 ]; then
+if [[ "$ok" -ne 1 ]]; then
   echo "backend did not become healthy; last 40 journal lines:" >&2
   journalctl -u "$SVC" --no-pager -n 40 >&2
   exit 1

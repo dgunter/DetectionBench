@@ -20,7 +20,7 @@ export const CARD_TOOLTIPS = {
   confidence: "How sure we are, and whether this came from parsing the rule, reading its metadata, or an AI guess.",
 } as const
 
-export function ConfidenceBadge({ confidence, provenance }: { confidence: Confidence; provenance: string }) {
+export function ConfidenceBadge({ confidence, provenance }: Readonly<{ confidence: Confidence; provenance: string }>) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -45,14 +45,14 @@ export function ResultCard({
   badge,
   className,
   children,
-}: {
+}: Readonly<{
   title: string
   tooltip: string
   state: CardState
   badge?: ReactNode
   className?: string
   children?: ReactNode
-}) {
+}>) {
   return (
     <Card className={cn("gap-3 py-4", className)} data-state={state}>
       <CardHeader className="px-4">

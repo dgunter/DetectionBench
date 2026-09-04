@@ -1,16 +1,16 @@
-import { useState, type FormEvent } from "react"
+import { useState, type SubmitEvent } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ApiError, api } from "@/lib/api"
 import { describeAuthError } from "@/lib/session"
 
-export function AccessGate({ onAuthenticated }: { onAuthenticated: () => void }) {
+export function AccessGate({ onAuthenticated }: Readonly<{ onAuthenticated: () => void }>) {
   const [token, setToken] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
-  async function submit(e: FormEvent) {
+  async function submit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!token.trim() || busy) return
     setBusy(true)
