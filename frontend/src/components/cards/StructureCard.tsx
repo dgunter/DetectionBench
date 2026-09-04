@@ -2,9 +2,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { CARD_TOOLTIPS, ConfidenceBadge, ResultCard, type CardState } from "@/components/ResultCard"
-import { flattenAst, tierTone } from "@/lib/ast"
+import { flattenStructure, tierTone } from "@/lib/structure"
 import { cn } from "@/lib/utils"
-import type { AstResult, ParseFailure } from "@/lib/types"
+import type { StructureResult, ParseFailure } from "@/lib/types"
 
 const PARSE_ERROR_TITLES: Record<string, string> = {
   too_large: "Rule is too large",
@@ -19,13 +19,13 @@ const PARSE_ERROR_TITLES: Record<string, string> = {
   invalid_value: "Unsupported value",
 }
 
-export function AstCard({ state, ast, error }: Readonly<{ state: CardState; ast: AstResult | null; error: ParseFailure | null }>) {
+export function StructureCard({ state, structure, error }: Readonly<{ state: CardState; structure: StructureResult | null; error: ParseFailure | null }>) {
   return (
     <ResultCard
-      title="Parsed AST"
-      tooltip={CARD_TOOLTIPS.ast}
+      title="Parsed structure"
+      tooltip={CARD_TOOLTIPS.structure}
       state={state}
-      badge={ast && state === "ready" ? <ConfidenceBadge confidence={ast.confidence} provenance={ast.provenance} /> : undefined}
+      badge={structure && state === "ready" ? <ConfidenceBadge confidence={structure.confidence} provenance={structure.provenance} /> : undefined}
     >
       {state === "error" && error && (
         <Alert variant="destructive">
@@ -36,17 +36,17 @@ export function AstCard({ state, ast, error }: Readonly<{ state: CardState; ast:
           </AlertDescription>
         </Alert>
       )}
-      {state === "ready" && ast && <AstTree ast={ast} />}
+      {state === "ready" && structure && <StructureTree structure={structure} />}
     </ResultCard>
   )
 }
 
-function AstTree({ ast }: Readonly<{ ast: AstResult }>) {
-  const lines = flattenAst(ast.root)
+function StructureTree({ structure }: Readonly<{ structure: StructureResult }>) {
+  const lines = flattenStructure(structure.root)
   return (
     <div className="space-y-2">
       <p className="font-mono text-xs text-muted-foreground">
-        condition: <span className="text-foreground">{ast.condition}</span>
+        condition: <span className="text-foreground">{structure.condition}</span>
       </p>
       <ol className="space-y-0.5 font-mono text-xs">
         {lines.map((line) => (
@@ -84,9 +84,9 @@ function AstTree({ ast }: Readonly<{ ast: AstResult }>) {
           </li>
         ))}
       </ol>
-      {ast.metadata_errors.length > 0 && (
+      {structure.metadata_errors.length > 0 && (
         <p className="text-xs text-muted-foreground">
-          {ast.metadata_errors.length} metadata problem(s) found by pySigma; see the Lint card.
+          {structure.metadata_errors.length} metadata problem(s) found by pySigma; see the Lint card.
         </p>
       )}
     </div>

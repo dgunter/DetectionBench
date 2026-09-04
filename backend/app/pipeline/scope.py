@@ -57,7 +57,7 @@ class ScopeResult:
     selections: tuple[dict[str, Any], ...]
     criteria_count: int
     filter_count: int
-    provenance: str = "deterministic:ast"
+    provenance: str = "deterministic:static"
     confidence: str = "high"
 
     def to_dict(self) -> dict[str, Any]:

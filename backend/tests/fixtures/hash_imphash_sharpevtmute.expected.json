@@ -25,7 +25,7 @@
     "tier": 1,
     "value": "Hash values",
     "confidence": "high",
-    "provenance": "deterministic:ast",
+    "provenance": "deterministic:static",
     "categories": [
       "hash"
     ],

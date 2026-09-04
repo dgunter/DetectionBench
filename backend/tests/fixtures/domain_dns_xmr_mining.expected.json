@@ -234,7 +234,7 @@
     "tier": 3,
     "value": "Domain names",
     "confidence": "high",
-    "provenance": "deterministic:ast",
+    "provenance": "deterministic:static",
     "categories": [
       "domain"
     ],

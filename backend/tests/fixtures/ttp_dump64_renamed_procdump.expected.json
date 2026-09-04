@@ -79,7 +79,7 @@
     "tier": 6,
     "value": "TTPs",
     "confidence": "medium",
-    "provenance": "deterministic:ast",
+    "provenance": "deterministic:static",
     "categories": [
       "host_artifact",
       "tool"

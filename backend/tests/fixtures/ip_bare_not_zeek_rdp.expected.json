@@ -113,7 +113,7 @@
     "tier": 2,
     "value": "IP addresses",
     "confidence": "medium",
-    "provenance": "deterministic:ast",
+    "provenance": "deterministic:static",
     "categories": [
       "ip"
     ],

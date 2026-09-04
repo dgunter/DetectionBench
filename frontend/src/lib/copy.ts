@@ -2,7 +2,7 @@
 // Source of truth for the longer form is the "How this works" page.
 
 export const TOOLTIPS = {
-  ast: "The rule's logic, broken into its structural pieces.",
+  structure: "The rule's logic broken into its structural pieces — the intermediate representation (IR) produced by static analysis of the rule.",
   scope: "Plain-language read of what this rule actually matches, derived from the same parsed logic.",
   pyramid: "How durable this detection is — see 'How this works' for the full framework.",
   lint: "Metadata completeness check — separate from whether the detection logic itself is strong.",
@@ -12,7 +12,7 @@ export const TOOLTIPS = {
 } as const
 
 export const PROVENANCE_LABELS: Record<string, string> = {
-  "deterministic:ast": "Deterministic · AST",
+  "deterministic:static": "Deterministic · static analysis",
   "deterministic:metadata": "Deterministic · metadata",
   "inferred:llm": "Inferred · LLM",
 }

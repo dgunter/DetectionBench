@@ -18,16 +18,16 @@ def test_classify_returns_every_card_slot(authed_client) -> None:
     body = r.json()
     assert body["ok"] is True
     assert body["error"] is None
-    assert set(body) == {"ok", "error", "ast", "scope", "pyramid", "lint", "attack"}
-    ast = body["ast"]
-    assert ast["provenance"] == "deterministic:ast"
-    assert ast["root"]["kind"] == "boolean"
-    assert ast["root"]["op"] == "and"
-    assert ast["selections"] == ["selection", "filter_main_ngen", "filter_optional_xampp"]
-    assert ast["metadata"]["title"] == "Process Creation Using Sysnative Folder"
+    assert set(body) == {"ok", "error", "structure", "scope", "pyramid", "lint", "attack"}
+    structure = body["structure"]
+    assert structure["provenance"] == "deterministic:static"
+    assert structure["root"]["kind"] == "boolean"
+    assert structure["root"]["op"] == "and"
+    assert structure["selections"] == ["selection", "filter_main_ngen", "filter_optional_xampp"]
+    assert structure["metadata"]["title"] == "Process Creation Using Sysnative Folder"
     assert body["scope"]["filter_count"] == 2
     assert body["pyramid"]["tier"] == 4
-    assert body["pyramid"]["provenance"] == "deterministic:ast"
+    assert body["pyramid"]["provenance"] == "deterministic:static"
     assert body["lint"]["provenance"] == "deterministic:metadata"
     assert body["lint"]["counts"]["error"] == 0
     assert body["attack"]["techniques"][0]["id"] == "T1055"
@@ -41,7 +41,7 @@ def test_parse_failure_is_a_result_not_an_http_error(authed_client) -> None:
     assert body["ok"] is False
     assert body["error"]["code"] == "invalid_yaml"
     assert body["error"]["detail"].startswith("line 2")
-    assert body["ast"] is None
+    assert body["structure"] is None
     assert body["scope"] is None
 
 
@@ -64,4 +64,4 @@ def test_metadata_errors_do_not_block_classification(authed_client) -> None:
     text = "title: bad\nid: nope\nstatus: bogus\nlogsource:\n  product: windows\ndetection:\n  sel:\n    Image: x\n  condition: sel\nlevel: bogus\n"
     body = authed_client.post("/api/classify", json={"rule": text}).json()
     assert body["ok"] is True
-    assert {e["type"] for e in body["ast"]["metadata_errors"]} >= {"SigmaIdentifierError", "SigmaLevelError", "SigmaStatusError"}
+    assert {e["type"] for e in body["structure"]["metadata_errors"]} >= {"SigmaIdentifierError", "SigmaLevelError", "SigmaStatusError"}

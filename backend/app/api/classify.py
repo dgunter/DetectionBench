@@ -1,7 +1,7 @@
 """POST /api/classify: the deterministic pipeline, stateless, one rule at a time.
 
 A parse failure is a *result* (``ok: false`` with a structured error), not an
-HTTP error: the UI renders it in the Parsed AST card and puts the other cards
+HTTP error: the UI renders it in the Parsed structure card and puts the other cards
 into a waiting state. Only transport-level problems (auth, oversize body,
 malformed JSON) use HTTP status codes.
 """
@@ -32,17 +32,17 @@ def run_pipeline(rule_text: str) -> dict[str, Any]:
     try:
         parsed = parse_rule(rule_text)
     except ParseError as exc:
-        return {"ok": False, "error": exc.to_dict(), "ast": None, "scope": None, "pyramid": None, "lint": None, "attack": None}
+        return {"ok": False, "error": exc.to_dict(), "structure": None, "scope": None, "pyramid": None, "lint": None, "attack": None}
 
     ir = parsed.ir
     dataset = load_attack_dataset()
     return {
         "ok": True,
         "error": None,
-        "ast": {
+        "structure": {
             "value": ir.condition,
             "confidence": "high",
-            "provenance": "deterministic:ast",
+            "provenance": "deterministic:static",
             "rationale": "Condition tree as resolved by pySigma, with each selection expanded into its field tests.",
             "condition": ir.condition,
             "selections": list(ir.selections),

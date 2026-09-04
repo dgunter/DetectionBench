@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { countCriteria, criterionLabel, flattenAst, provenanceLabel } from "./ast"
-import type { AstNode, CriterionNode } from "./types"
+import { countCriteria, criterionLabel, flattenStructure, provenanceLabel } from "./structure"
+import type { StructureNode, CriterionNode } from "./types"
 
 const crit = (field: string | null, modifiers: string[] = [], selection = "selection"): CriterionNode => ({
   kind: "criterion",
@@ -18,7 +18,7 @@ const crit = (field: string | null, modifiers: string[] = [], selection = "selec
   outcome: false,
 })
 
-const tree: AstNode = {
+const tree: StructureNode = {
   kind: "boolean",
   op: "and",
   selection: null,
@@ -28,9 +28,9 @@ const tree: AstNode = {
   ],
 }
 
-describe("flattenAst", () => {
+describe("flattenStructure", () => {
   it("walks depth-first with depths and selection names", () => {
-    const lines = flattenAst(tree)
+    const lines = flattenStructure(tree)
     expect(lines.map((l) => [l.depth, l.label, l.selection])).toEqual([
       [0, "AND", null],
       [1, "OR", "selection"],
@@ -54,7 +54,7 @@ describe("criterionLabel", () => {
 
 describe("provenanceLabel", () => {
   it("renders the three provenance kinds", () => {
-    expect(provenanceLabel("deterministic:ast")).toBe("Deterministic · AST")
+    expect(provenanceLabel("deterministic:static")).toBe("Deterministic · static analysis")
     expect(provenanceLabel("inferred:llm")).toBe("Inferred · LLM")
   })
 })

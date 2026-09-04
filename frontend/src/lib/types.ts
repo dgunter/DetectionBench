@@ -3,7 +3,7 @@
 import type { AttackMapping } from "./attack"
 
 export type Confidence = "high" | "medium" | "low"
-export type Provenance = "deterministic:ast" | "deterministic:metadata" | "inferred:llm"
+export type Provenance = "deterministic:static" | "deterministic:metadata" | "inferred:llm"
 
 export interface CriterionNode {
   kind: "criterion"
@@ -25,10 +25,10 @@ export interface BooleanNode {
   kind: "boolean"
   op: "and" | "or" | "not"
   selection: string | null
-  children: AstNode[]
+  children: StructureNode[]
 }
 
-export type AstNode = CriterionNode | BooleanNode
+export type StructureNode = CriterionNode | BooleanNode
 
 export interface RuleMetadata {
   title: string | null
@@ -45,14 +45,14 @@ export interface RuleMetadata {
   logsource: { category: string | null; product: string | null; service: string | null }
 }
 
-export interface AstResult {
+export interface StructureResult {
   value: string
   confidence: Confidence
   provenance: Provenance
   rationale: string
   condition: string
   selections: string[]
-  root: AstNode
+  root: StructureNode
   metadata: RuleMetadata
   metadata_errors: { type: string; message: string }[]
 }
@@ -131,7 +131,7 @@ export interface ParseFailure {
 export interface ClassifyResponse {
   ok: boolean
   error: ParseFailure | null
-  ast: AstResult | null
+  structure: StructureResult | null
   scope: ScopeResult | null
   pyramid: PyramidResult | null
   lint: LintResult | null
