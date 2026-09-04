@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="frontend/public/logo.png" alt="DetectionBench logo" width="120" />
+</p>
+
 # DetectionBench
 
 **DetectionBench** is a workbench for understanding cybersecurity detection
@@ -9,6 +13,11 @@ claims to cover exist. Every one of those answers is computed deterministically
 by parsing and walking the rule's structure, with the resolution steps shown so
 you can audit the result. An AI second opinion sits alongside, labelled as
 such, and never replaces the deterministic score.
+
+<p align="center">
+  <img src="docs/screenshots/03-workbench-sysnative-classified.png" alt="The workbench after classifying a Sigma rule: parsed structure, scope, Pyramid of Pain tier, lint and ATT&CK cards, with the AI panel alongside" width="900" />
+</p>
+
 
 Live: **[detectionbench.ai](https://detectionbench.ai)** (access-token gated).
 
@@ -96,7 +105,7 @@ was reached, not how good the rule is) and **provenance**:
 v1 is static: it reasons about what the rule *would* match from its text and
 structure alone. **Dynamic analysis is not built.** The roadmap version
 generates and labels test telemetry, executes the rule against it, and reports
-TP / FP / TN / FN, precision, recall and F1. The same IR drives both: static
+TP / FP / TN / FN, and from those precision, recall and the F1 score. The same IR drives both: static
 analysis walks it, dynamic analysis will execute it. Until then the Scope &
 match card is deliberately symbolic, because a made-up match rate is worse
 than none.
