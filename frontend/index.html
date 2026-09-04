@@ -2,7 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#4f46e5" />
+    <meta name="description" content="DetectionBench evaluates Sigma detection rules: parsed structure, scope, Pyramid of Pain tier, lint, and ATT&CK mapping, computed deterministically, with an AI second opinion alongside." />
+    <meta property="og:title" content="DetectionBench" />
+    <meta property="og:description" content="Deterministic evaluation of detection rules, with an AI second opinion that never outranks it." />
+    <meta property="og:image" content="https://detectionbench.ai/og-image.png" />
+    <meta property="og:url" content="https://detectionbench.ai/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      // Apply the remembered or OS theme before first paint to avoid a flash.
+      try {
+        var t = localStorage.getItem("db-theme");
+        if (t === "dark" || (t !== "light" && matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.classList.add("dark");
+      } catch (e) {}
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DetectionBench</title>
   </head>

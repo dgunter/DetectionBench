@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react"
 import { Link } from "react-router-dom"
 import { AiPanel } from "@/components/AiPanel"
+import { ThemeToggle } from "@/components/ThemeToggle"
 import { StructureCard } from "@/components/cards/StructureCard"
 import { AttackCard } from "@/components/cards/AttackCard"
 import { LintCard } from "@/components/cards/LintCard"
@@ -56,7 +57,8 @@ export function Workbench({ onLoggedOut }: Readonly<{ onLoggedOut: () => void }>
     <TooltipProvider delayDuration={200}>
       <div className="flex min-h-svh flex-col">
         <header className="flex items-center justify-between border-b px-4 py-2">
-          <div className="flex items-baseline gap-3">
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="" className="size-6" />
             <span className="font-semibold">DetectionBench</span>
             <span className="text-xs text-muted-foreground">Sigma rule evaluation</span>
           </div>
@@ -67,6 +69,7 @@ export function Workbench({ onLoggedOut }: Readonly<{ onLoggedOut: () => void }>
             <Button variant="ghost" size="sm" onClick={logout}>
               Log out
             </Button>
+            <ThemeToggle />
           </nav>
         </header>
 

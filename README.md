@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="frontend/public/logo.png" alt="DetectionBench logo" width="120" />
+</p>
+
 # DetectionBench
 
 **DetectionBench** is a workbench for understanding cybersecurity detection
@@ -9,6 +13,11 @@ claims to cover exist. Every one of those answers is computed deterministically
 by parsing and walking the rule's structure, with the resolution steps shown so
 you can audit the result. An AI second opinion sits alongside, labelled as
 such, and never replaces the deterministic score.
+
+<p align="center">
+  <img src="docs/screenshots/03-workbench-sysnative-classified.png" alt="The workbench after classifying a Sigma rule: parsed structure, scope, Pyramid of Pain tier, lint and ATT&CK cards, with the AI panel alongside" width="900" />
+</p>
+
 
 Live: **[detectionbench.ai](https://detectionbench.ai)** (access-token gated).
 
