@@ -41,6 +41,7 @@ CHECK_TABLE: tuple[tuple[str, str], ...] = (
     ("falsepositives", "falsepositives present, not just 'Unknown'"),
     ("logsource", "logsource category/product populated"),
     ("selections", "every selection is used by the condition"),
+    ("attack_coverage", "at least one attack.t* technique tag"),
     ("attack_techniques", "attack.t* technique tags resolve"),
     ("attack_tactics", "attack.<tactic> tags resolve"),
     ("attack_software_groups", "attack.s*/g* tags (not validated in v1)"),
@@ -203,6 +204,10 @@ def lint_rule(
 
     attack = map_attack_tags(ir.metadata.tags, dataset)
     findings += list(attack.findings)
+    if not attack.techniques:
+        # Tactic-only or untagged rules cannot be placed on the ATT&CK matrix; 11% of the
+        # public SigmaHQ corpus stops at the tactic (2026-09-04 scan). Warning, not error.
+        findings.append(Finding("attack_coverage", "warning", "no attack.t* technique tag; a tactic alone does not say which technique the rule covers", "tags"))
 
     # Build the fixed table: every check, pass or worst finding.
     attack_rows = {

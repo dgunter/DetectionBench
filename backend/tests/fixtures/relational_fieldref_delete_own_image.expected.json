@@ -50,7 +50,7 @@
     ]
   },
   "lint": {
-    "value": "clean",
+    "value": "1 warning",
     "checks": {
       "title": "pass",
       "id": "pass",
@@ -61,12 +61,19 @@
       "falsepositives": "pass",
       "logsource": "pass",
       "selections": "pass",
+      "attack_coverage": "warning",
       "attack_techniques": "pass",
       "attack_tactics": "pass",
       "attack_software_groups": "pass",
       "date": "pass"
     },
-    "findings": []
+    "findings": [
+      [
+        "attack_coverage",
+        "warning",
+        "tags"
+      ]
+    ]
   },
   "attack": {
     "techniques": [],
