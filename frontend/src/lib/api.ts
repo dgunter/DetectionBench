@@ -46,8 +46,8 @@ export interface Example {
 export const api = {
   examples: () => request<Example[]>("/api/examples"),
   llmBudget: () => request<{ remaining: number; limit: number }>("/api/llm/budget"),
-  llmExplain: (rule: string, model: ModelKey) =>
-    request<ExplainResult>("/api/llm/explain", { method: "POST", body: JSON.stringify({ rule, model }) }),
+  llmExplain: (rule: string, model: ModelKey, signal?: AbortSignal) =>
+    request<ExplainResult>("/api/llm/explain", { method: "POST", body: JSON.stringify({ rule, model }), signal }),
   /**
    * Streaming explain: calls onDelta for each text chunk and resolves with the
    * full text. Rejects with ApiError when the server declines before streaming
@@ -96,10 +96,10 @@ export const api = {
       if (done) return text
     }
   },
-  llmSuggestAttack: (rule: string, model: ModelKey) =>
-    request<SuggestAttackResult>("/api/llm/suggest-attack", { method: "POST", body: JSON.stringify({ rule, model }) }),
-  llmCandidates: (rule: string, model: ModelKey) =>
-    request<CandidatesResult>("/api/llm/candidates", { method: "POST", body: JSON.stringify({ rule, model }) }),
+  llmSuggestAttack: (rule: string, model: ModelKey, signal?: AbortSignal) =>
+    request<SuggestAttackResult>("/api/llm/suggest-attack", { method: "POST", body: JSON.stringify({ rule, model }), signal }),
+  llmCandidates: (rule: string, model: ModelKey, signal?: AbortSignal) =>
+    request<CandidatesResult>("/api/llm/candidates", { method: "POST", body: JSON.stringify({ rule, model }), signal }),
   session: () => request<{ authenticated: boolean }>("/api/auth/session"),
   verifyToken: (token: string) =>
     request<void>("/api/auth/verify", { method: "POST", body: JSON.stringify({ token }) }),
