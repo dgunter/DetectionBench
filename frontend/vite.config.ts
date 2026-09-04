@@ -17,5 +17,13 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["src/**/*.test.ts"],
+    coverage: {
+      // `vitest run --coverage` (CI) writes coverage/lcov.info, which SonarCloud
+      // reads via sonar.javascript.lcov.reportPaths.
+      provider: "v8",
+      reporter: ["text-summary", "lcov"],
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: ["src/**/*.test.ts", "src/main.tsx"],
+    },
   },
 })
