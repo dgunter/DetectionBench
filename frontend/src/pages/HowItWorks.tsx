@@ -162,6 +162,33 @@ detection:
       <p className={p}>
         It reads Sigma only; Suricata and YARA rules would use the same pipeline with a different front-end parser. It does not run rules against real event data. It does not score the cost of satisfying an exclusion filter, only lists them. Its Tools tier depends on a maintained list of known offensive tools, and anything not on the list is invisible to it. Its confidence labels describe how a classification was reached, not calibration against expert judgement; that calibration, against a hand-labelled rule set, is the next piece of methodology work. Each of these is stated on the relevant card rather than hidden, on the principle that a tool for understanding should be easy to understand itself.
       </p>
+
+      <h2 className={h2}>Static analysis today, dynamic analysis next</h2>
+      <p className={p}>
+        Everything on this page is static analysis: the tool reasons about what a rule <em>would</em> match by reading its text and walking its parsed structure, the way a code reviewer reasons about a function without running it. That is enough to say where the rule sits on the pyramid, what its exclusions leave open, and whether its metadata is complete, and it has the great advantage of being fast, deterministic, and free of any dependence on having the right telemetry to hand. What it cannot say is how the rule actually behaves: how often it fires on benign activity, which real attack samples it misses, whether two rules that look different in fact match the same events.
+      </p>
+      <p className={p}>
+        Dynamic analysis answers those questions, and it is the next piece of the roadmap. The plan is to generate test event data for a rule's log source, label each event as something the rule should or should not catch, run the rule against it, and report the plain confusion matrix: true positives, false positives, true negatives, false negatives, and the precision, recall, and F1 that follow. The same intermediate representation that the static cards walk today is the thing the dynamic engine would execute, so the two views of a rule can never drift apart. None of this is built yet, and nothing on the current cards pretends otherwise: the scope card is a description of the rule, not a measurement of it.
+      </p>
+
+      <h2 className={h2}>Deterministic checks for AI-assisted rule writing</h2>
+      <p className={p}>
+        AI models are already being used to draft detection rules, and they are reasonably good at it in the way a fast junior analyst is good at it: fluent, plausible, occasionally wrong in ways that are hard to see from the outside. The candidate-rewrite action above is a small example of how to work with that. The model writes the rule; the deterministic pipeline parses it, scores it, lints it, and reports whether it got better or worse against the original. The model is not asked to judge its own work, and no human has to take its word for anything the pipeline can check.
+      </p>
+      <p className={p}>
+        The natural next step is to expose this workbench to an agent directly, through a Model Context Protocol server, so that an agent developing rules can parse, score, lint, and (once dynamic analysis exists) execute each draft in a loop, refine it against the results, and only then hand it to a human or a deployment pipeline. The principle is simple: whatever can be verified by code should be verified by code, and inference, whether a model's or a person's, should be reserved for the parts that genuinely require judgement. A rule that has been through that loop is not a guess that happened to look right; it is a rule whose structure, tier, and metadata have been checked by the same fixed procedure that would check a human's. That is the difference between a vibe-coded rule and a verified one, and it is a difference a review process can rely on.
+      </p>
+
+      <h2 className={h2}>How this relates to Summiting the Pyramid</h2>
+      <p className={p}>
+        MITRE's Center for Threat-Informed Defense has published <a href="https://ctid.mitre.org/projects/summiting-the-pyramid/" className="underline" target="_blank" rel="noreferrer">Summiting the Pyramid</a>, a methodology for scoring how robust an analytic is to adversary evasion. It places the observables an analytic relies on across five levels, from ephemeral values (level 1) through adversary-brought tools (2), pre-existing tools inside the boundary (3), and observables core to some implementations of a technique (4), up to observables core to the technique itself (5), and adds a column for where the sensor sits. Analysts decompose each analytic with a Detection Decomposition Diagram and score it by hand; the authors note that not every analytic can be scored.
+      </p>
+      <p className={p}>
+        DetectionBench reaches the same conclusions from the same reasoning. Summiting the Pyramid's rule that analytic components ANDed together fall to the score of the lowest observable is exactly the minimum rule described above. Both agree that detections keyed on behaviour are more durable than detections keyed on indicators, and both treat exclusion filters as a trade of robustness for fewer false positives, one that should be visible rather than buried.
+      </p>
+      <p className={p}>
+        Where DetectionBench adds something is in how the score is produced. Instead of a manual procedure applied one analytic at a time, the tier is computed automatically and deterministically from the rule's parsed structure, using Bianco's six-tier pyramid as the scale, so the same method applies unchanged to a corpus of thousands of rules. The resolution steps are shown per rule so a human can audit each result rather than take it on faith, and any candidate rewrite, whether written by a person or a model, is re-scored by the same engine, so improvements are measured rather than asserted.
+      </p>
     </main>
   )
 }
