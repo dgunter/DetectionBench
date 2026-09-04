@@ -93,9 +93,11 @@ function AstTree({ ast }: Readonly<{ ast: AstResult }>) {
   )
 }
 
+const ESCAPED_QUOTE = String.raw`\'`
+
 /** Show values as the author wrote them (Sigma single quotes), not JSON-escaped. */
 function formatValues(values: string[]): string {
-  const q = (v: string) => `'${v.replaceAll("'", String.raw`\'`)}'`
+  const q = (v: string) => `'${v.replaceAll("'", ESCAPED_QUOTE)}'`
   if (values.length === 1) return q(values[0])
   return `[${values.map(q).join(", ")}]`
 }
