@@ -2,7 +2,7 @@
 
 import type { LintCheck, LintResult } from "./types"
 
-/** "2 errors · 1 warning · 10 checks passed", or "All 13 checks passed". */
+/** "2 errors · 1 warning · 10 checks passed", or "All 14 checks passed". */
 export function summarizeLint(result: LintResult): string {
   const parts: string[] = []
   const n = (count: number, noun: string) => `${count} ${noun}${count === 1 ? "" : "s"}`

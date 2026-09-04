@@ -130,6 +130,7 @@
       "falsepositives": "warning",
       "logsource": "pass",
       "selections": "pass",
+      "attack_coverage": "pass",
       "attack_techniques": "pass",
       "attack_tactics": "pass",
       "attack_software_groups": "pass",

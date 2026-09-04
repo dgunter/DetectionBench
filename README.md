@@ -42,7 +42,8 @@ Five deterministic cards, same answer every time for the same input:
 4. **Lint** — metadata and structural checks: valid UUID, recognised status and
    level, a description that says more than the title, references, a
    false-positives note that says more than "Unknown", populated log source,
-   every selection used by the condition, ATT&CK tags that resolve.
+   every selection used by the condition, at least one ATT&CK technique tag,
+   and ATT&CK tags that resolve.
 5. **ATT&CK mapping** — declared `attack.*` tags checked against a bundled,
    offline copy of MITRE ATT&CK Enterprise; unknown techniques are errors,
    retired ones are flagged with their replacement, renamed tactics are noted.

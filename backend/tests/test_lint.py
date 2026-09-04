@@ -30,6 +30,7 @@ def test_every_table_row_is_reported_once_for_the_bad_fixture() -> None:
     assert by_check["logsource"].status == "warning"  # service only
     assert by_check["selections"].status == "warning"
     assert "unused_selection" in (by_check["selections"].message or "")
+    assert by_check["attack_coverage"].status == "pass"  # techniques are declared, even if some are bad
     assert by_check["attack_techniques"].status == "error"  # t9999 unknown outranks t1562.002 retired
     assert by_check["attack_tactics"].status == "error"  # not-a-tactic outranks the defense-evasion rename
     assert by_check["attack_software_groups"].status == "info"
@@ -73,6 +74,7 @@ def test_missing_fields_are_reported_not_crashed() -> None:
     assert by_check["description"].status == "warning"
     assert by_check["falsepositives"].status == "warning"
     assert by_check["logsource"].status == "pass"
+    assert by_check["attack_coverage"].status == "warning"  # no tags at all
 
 
 def test_pysigma_only_errors_fall_back_to_a_generic_row() -> None:
@@ -86,3 +88,15 @@ def test_falsepositives_unknown_only_is_flagged_but_real_notes_pass() -> None:
     base = "title: t\nid: 3c1b5fb0-c72f-45ba-abd1-4d4c353144ab\nstatus: test\ndescription: Detects something specific enough\nreferences: [https://example.test]\nlogsource:\n  product: windows\ndetection:\n  sel:\n    Image: x\n  condition: sel\nlevel: low\n"
     assert {c.check: c.status for c in _lint(base + "falsepositives:\n  - Unknown\n").checks}["falsepositives"] == "warning"
     assert {c.check: c.status for c in _lint(base + "falsepositives:\n  - Admin scripts\n").checks}["falsepositives"] == "pass"
+
+
+def test_tactic_only_rule_warns_on_technique_coverage() -> None:
+    base = "title: t\nid: 3c1b5fb0-c72f-45ba-abd1-4d4c353144ab\nstatus: test\ndescription: Detects something specific enough\nreferences: [https://example.test]\nfalsepositives: [Admin scripts]\nlogsource:\n  product: windows\ndetection:\n  sel:\n    Image: x\n  condition: sel\nlevel: low\n"
+    tactic_only = _lint(base + "tags:\n  - attack.execution\n")
+    rows = {c.check: c.status for c in tactic_only.checks}
+    assert rows["attack_coverage"] == "warning"
+    assert rows["attack_tactics"] == "pass"
+    assert [f.check for f in tactic_only.findings] == ["attack_coverage"]
+    with_technique = _lint(base + "tags:\n  - attack.execution\n  - attack.t1059.001\n")
+    assert {c.check: c.status for c in with_technique.checks}["attack_coverage"] == "pass"
+    assert with_technique.findings == ()
