@@ -49,6 +49,7 @@ postgres-data/
 docker-compose.override.yml
 
 # --- SonarQube / coverage / scanner artifacts ---
+coverage.xml
 .scannerwork/
 .sonar/
 coverage/
@@ -67,3 +68,6 @@ logs/
 
 # --- Local Claude Code launch config ---
 .claude/
+
+# --- Build-host caches (created by deploy.sh on the droplet) ---
+.npm/
