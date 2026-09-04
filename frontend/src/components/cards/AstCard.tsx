@@ -19,7 +19,7 @@ const PARSE_ERROR_TITLES: Record<string, string> = {
   invalid_value: "Unsupported value",
 }
 
-export function AstCard({ state, ast, error }: { state: CardState; ast: AstResult | null; error: ParseFailure | null }) {
+export function AstCard({ state, ast, error }: Readonly<{ state: CardState; ast: AstResult | null; error: ParseFailure | null }>) {
   return (
     <ResultCard
       title="Parsed AST"
@@ -41,7 +41,7 @@ export function AstCard({ state, ast, error }: { state: CardState; ast: AstResul
   )
 }
 
-function AstTree({ ast }: { ast: AstResult }) {
+function AstTree({ ast }: Readonly<{ ast: AstResult }>) {
   const lines = flattenAst(ast.root)
   return (
     <div className="space-y-2">
@@ -49,8 +49,8 @@ function AstTree({ ast }: { ast: AstResult }) {
         condition: <span className="text-foreground">{ast.condition}</span>
       </p>
       <ol className="space-y-0.5 font-mono text-xs">
-        {lines.map((line, i) => (
-          <li key={i} className="flex flex-wrap items-center gap-1.5" style={{ paddingLeft: `${line.depth * 1.25}rem` }}>
+        {lines.map((line) => (
+          <li key={line.path} className="flex flex-wrap items-center gap-1.5" style={{ paddingLeft: `${line.depth * 1.25}rem` }}>
             {line.kind === "boolean" ? (
               <>
                 <Badge variant="outline" className="font-mono">
@@ -95,7 +95,7 @@ function AstTree({ ast }: { ast: AstResult }) {
 
 /** Show values as the author wrote them (Sigma single quotes), not JSON-escaped. */
 function formatValues(values: string[]): string {
-  const q = (v: string) => `'${v.replace(/'/g, "\\'")}'`
+  const q = (v: string) => `'${v.replaceAll("'", String.raw`\'`)}'`
   if (values.length === 1) return q(values[0])
   return `[${values.map(q).join(", ")}]`
 }

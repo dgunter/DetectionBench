@@ -13,7 +13,7 @@ const ADVISORY_TITLES: Record<Advisory["kind"], string> = {
   level_vs_tier: "High severity, low durability",
 }
 
-export function PyramidCard({ state, pyramid }: { state: CardState; pyramid: PyramidResult | null }) {
+export function PyramidCard({ state, pyramid }: Readonly<{ state: CardState; pyramid: PyramidResult | null }>) {
   return (
     <ResultCard
       title="Pyramid of Pain"
@@ -58,14 +58,14 @@ export function PyramidCard({ state, pyramid }: { state: CardState; pyramid: Pyr
           <details className="text-xs" open>
             <summary className="cursor-pointer font-medium">How this was scored</summary>
             <ol className="mt-1 list-decimal space-y-0.5 pl-5 text-muted-foreground">
-              {pyramid.steps.map((s, i) => (
-                <li key={i}>{s}</li>
+              {pyramid.steps.map((s) => (
+                <li key={s}>{s}</li>
               ))}
             </ol>
           </details>
 
-          {pyramid.advisories.map((a, i) => (
-            <Alert key={i} className="py-2">
+          {pyramid.advisories.map((a) => (
+            <Alert key={`${a.kind}:${a.message}`} className="py-2">
               <AlertTitle className="text-xs">
                 <Badge variant="outline" className="mr-1 font-normal">
                   advisory

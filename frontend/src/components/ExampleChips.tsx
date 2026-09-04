@@ -4,7 +4,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { api, type Example } from "@/lib/api"
 
 /** Example-rule chips for the top bar. Calls onPick with the rule YAML. */
-export function ExampleChips({ onPick, disabled }: { onPick: (yaml: string, example: Example) => void; disabled?: boolean }) {
+export function ExampleChips({ onPick, disabled }: Readonly<{ onPick: (yaml: string, example: Example) => void; disabled?: boolean }>) {
   const [examples, setExamples] = useState<Example[]>([])
 
   useEffect(() => {

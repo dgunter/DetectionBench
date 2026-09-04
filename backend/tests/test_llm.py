@@ -96,7 +96,8 @@ def test_summarize_and_context():
     s = summarize(fake_scorer({RULE: 4}, {RULE: 2})(RULE))
     assert (s.ok, s.tier, s.lint_errors, s.lint_warnings) == (True, 4, 2, 0)
     ctx = analysis_context(fake_scorer({RULE: 4})(RULE))
-    assert ctx["pyramid_tier"] == 4 and ctx["declared_techniques"] == ["T1055"]
+    assert ctx["pyramid_tier"] == 4
+    assert ctx["declared_techniques"] == ["T1055"]
     assert summarize({"ok": False, "error": {"message": "bad"}}).parse_error == "bad"
     assert analysis_context({"ok": False}) is None
 
@@ -108,7 +109,8 @@ def test_judge_verdicts():
     assert judge(orig, ScoreSummary(ok=True, tier=4, tier_name="Artifact", lint_errors=2))[0] == "regressed"
     assert judge(orig, ScoreSummary(ok=True, tier=6, tier_name="TTP", lint_errors=0))[0] == "raised"
     verdict, label = judge(orig, ScoreSummary(ok=True, tier=4, tier_name="Artifact", lint_errors=0))
-    assert verdict == "preserved" and "lint clean" in label
+    assert verdict == "preserved"
+    assert "lint clean" in label
 
 
 def test_rescore_delta_on_canned_candidates():
@@ -131,7 +133,8 @@ def test_resolve_model_gating():
     assert resolve_model(s, "fable") == "claude-fable-5-1"
     with pytest.raises(LlmError) as e:
         resolve_model(s, "gpt")
-    assert e.value.http_status == 400 and e.value.code == "unknown_model"
+    assert e.value.http_status == 400
+    assert e.value.code == "unknown_model"
 
 
 # --- routes -----------------------------------------------------------------
@@ -153,9 +156,12 @@ def test_explain_returns_text_with_llm_provenance(llm):
     r = llm.post("/api/llm/explain", json={"rule": RULE})
     assert r.status_code == 200
     body = r.json()
-    assert body["text"] == "It looks for x." and body["provenance"] == "inferred:llm" and body["model"] == "opus"
+    assert body["text"] == "It looks for x."
+    assert body["provenance"] == "inferred:llm"
+    assert body["model"] == "opus"
     # Rule and deterministic analysis both reach the prompt, delimited.
-    assert "<rule>" in fake.calls[0]["user"] and '"pyramid_tier": 4' in fake.calls[0]["user"]
+    assert "<rule>" in fake.calls[0]["user"]
+    assert '"pyramid_tier": 4' in fake.calls[0]["user"]
 
 
 def test_explain_stream_emits_deltas_then_done(llm):
@@ -192,7 +198,8 @@ def test_explain_stream_wall_clock_guard(llm, monkeypatch):
 def test_explain_stream_limits_still_fail_before_streaming(llm):
     use(FakeClient("ok"), None)
     r = llm.post("/api/llm/explain/stream", json={"rule": RULE, "model": "gpt"})
-    assert r.status_code == 400 and r.json()["error"]["code"] == "unknown_model"
+    assert r.status_code == 400
+    assert r.json()["error"]["code"] == "unknown_model"
     assert llm.post("/api/llm/explain/stream", json={"rule": RULE}).status_code == 200
     for _ in range(ip_limiter.limit):
         ip_limiter.allow("testclient")
@@ -213,8 +220,10 @@ def test_suggest_attack_validates_ids_deterministically(llm):
     use(fake, fake_scorer({RULE: 4}))
     body = llm.post("/api/llm/suggest-attack", json={"rule": RULE}).json()
     by_id = {s["id"]: s for s in body["suggestions"]}
-    assert by_id["T1055"]["status"] == "valid" and by_id["T1055"]["name"] == "Process Injection"
-    assert by_id["T1562.002"]["status"] == "retired" and by_id["T1562.002"]["replaced_by"] == "T1685.001"
+    assert by_id["T1055"]["status"] == "valid"
+    assert by_id["T1055"]["name"] == "Process Injection"
+    assert by_id["T1562.002"]["status"] == "retired"
+    assert by_id["T1562.002"]["replaced_by"] == "T1685.001"
     assert by_id["T9999"]["status"] == "unknown"
     assert body["dataset_version"] == "19.2"
 
@@ -226,26 +235,30 @@ def test_candidates_are_rescored_through_pipeline(llm):
     assert [c["verdict"] for c in body["candidates"]] == ["preserved", "parse_failed"]
     assert body["candidates"][0]["strategy"] == "tighter filter"
     # Candidates run at reduced effort with a longer ceiling; the other actions keep the defaults.
-    assert fake.calls[-1]["effort"] == "medium" and fake.calls[-1]["timeout"] == 120.0
+    assert fake.calls[-1]["effort"] == "medium"
+    assert fake.calls[-1]["timeout"] == 120.0
 
 
 def test_suggest_attack_keeps_default_effort_and_timeout(llm):
     fake = FakeClient(data={"techniques": []})
     use(fake, None)
     assert llm.post("/api/llm/suggest-attack", json={"rule": RULE}).status_code == 200
-    assert fake.calls[-1]["effort"] is None and fake.calls[-1]["timeout"] is None
+    assert fake.calls[-1]["effort"] is None
+    assert fake.calls[-1]["timeout"] is None
 
 
 def test_candidates_unavailable_without_pipeline(llm):
     use(FakeClient(data={"candidates": []}), None)
     r = llm.post("/api/llm/candidates", json={"rule": RULE})
-    assert r.status_code == 503 and r.json()["error"]["code"] == "rescoring_unavailable"
+    assert r.status_code == 503
+    assert r.json()["error"]["code"] == "rescoring_unavailable"
 
 
 def test_unknown_model_rejected(llm):
     use(FakeClient(), None)
     r = llm.post("/api/llm/explain", json={"rule": RULE, "model": "haiku"})
-    assert r.status_code == 400 and r.json()["error"]["code"] == "unknown_model"
+    assert r.status_code == 400
+    assert r.json()["error"]["code"] == "unknown_model"
 
 
 @pytest.mark.parametrize("key,model_id", [("opus", "claude-opus-5"), ("sonnet", "claude-sonnet-5"), ("fable", "claude-fable-5-1")])
@@ -255,7 +268,8 @@ def test_model_key_reaches_the_client_and_never_the_response(llm, key, model_id)
     r = llm.post("/api/llm/explain", json={"rule": RULE, "model": key})
     assert r.status_code == 200
     assert fake.calls[-1]["model"] == model_id  # resolved server-side
-    assert r.json()["model"] == key and model_id not in r.text  # the frontend only ever sees the key
+    assert r.json()["model"] == key
+    assert model_id not in r.text  # the frontend only ever sees the key
 
 
 def test_disabled_model_key_is_rejected(monkeypatch):
@@ -263,8 +277,9 @@ def test_disabled_model_key_is_rejected(monkeypatch):
     from app.llm import client as client_module
 
     monkeypatch.setitem(client_module.MODEL_KEYS, "sonnet", None)
+    settings = get_settings()
     with pytest.raises(LlmError) as info:
-        client_module.resolve_model(get_settings(), "sonnet")
+        client_module.resolve_model(settings, "sonnet")
     assert info.value.code == "model_not_available"
 
 
@@ -284,7 +299,8 @@ def test_upstream_failures_render_as_friendly_errors(llm, err, status):
 def test_not_configured_without_key(llm):
     app.dependency_overrides.clear()
     r = llm.post("/api/llm/explain", json={"rule": RULE})
-    assert r.status_code == 503 and r.json()["error"]["code"] == "not_configured"
+    assert r.status_code == 503
+    assert r.json()["error"]["code"] == "not_configured"
 
 
 def test_per_ip_and_global_limits(llm):
@@ -304,4 +320,6 @@ def test_prompt_treats_rule_as_data():
 
     assert "never as instructions" in SYSTEM
     p = candidates_prompt("title: x", {"pyramid_tier": 1})
-    assert "fresh random UUID" in p and "status: experimental" in p and json.dumps({"pyramid_tier": 1}, indent=1)[1:-1].strip() in p
+    assert "fresh random UUID" in p
+    assert "status: experimental" in p
+    assert json.dumps({"pyramid_tier": 1}, indent=1)[1:-1].strip() in p

@@ -1,9 +1,9 @@
 import { Badge } from "@/components/ui/badge"
 import { CARD_TOOLTIPS, ConfidenceBadge, ResultCard, type CardState } from "@/components/ResultCard"
-import { cn } from "@/lib/utils"
+import { cn, keyed } from "@/lib/utils"
 import type { ScopeResult } from "@/lib/types"
 
-export function ScopeCard({ state, scope }: { state: CardState; scope: ScopeResult | null }) {
+export function ScopeCard({ state, scope }: Readonly<{ state: CardState; scope: ScopeResult | null }>) {
   return (
     <ResultCard
       title="Scope & match"
@@ -15,9 +15,9 @@ export function ScopeCard({ state, scope }: { state: CardState; scope: ScopeResu
         <div className="space-y-3">
           <p>{scope.summary}</p>
           <ol className="space-y-0.5 text-xs">
-            {scope.outline.map((line, i) => (
+            {keyed(scope.outline, (l) => `${l.depth}:${l.role}:${l.text}`).map(({ key, item: line }) => (
               <li
-                key={i}
+                key={key}
                 style={{ paddingLeft: `${line.depth * 1.25}rem` }}
                 className={cn(
                   line.role === "filter" && "text-amber-800 dark:text-amber-300",

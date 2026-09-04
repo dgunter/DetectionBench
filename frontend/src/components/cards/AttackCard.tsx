@@ -5,9 +5,11 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { TOOLTIPS, PROVENANCE_LABELS } from "@/lib/copy"
 import { summarizeAttack, type AttackMapping, type TechniqueRef } from "@/lib/attack"
 
-function TechniqueRow({ t }: { t: TechniqueRef }) {
+function TechniqueRow({ t }: Readonly<{ t: TechniqueRef }>) {
   const tone =
     t.status === "valid" ? "secondary" : t.status === "retired" ? "outline" : ("destructive" as const)
+  const replacedByName = t.replaced_by_name ? ` (${t.replaced_by_name})` : ""
+  const replacedBy = t.replaced_by ? ` → ${t.replaced_by}${replacedByName}` : ""
   return (
     <li className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm">
       <Badge variant={tone} className="font-mono">
@@ -20,7 +22,7 @@ function TechniqueRow({ t }: { t: TechniqueRef }) {
       )}
       {t.status === "retired" && (
         <span className="text-muted-foreground">
-          retired{t.replaced_by ? ` → ${t.replaced_by}${t.replaced_by_name ? ` (${t.replaced_by_name})` : ""}` : ""}
+          retired{replacedBy}
         </span>
       )}
       {t.tactics.length > 0 && (
@@ -35,7 +37,7 @@ function TechniqueRow({ t }: { t: TechniqueRef }) {
   )
 }
 
-export function AttackCard({ mapping }: { mapping: AttackMapping }) {
+export function AttackCard({ mapping }: Readonly<{ mapping: AttackMapping }>) {
   const issues = mapping.findings.filter((f) => f.severity !== "info")
   const notes = mapping.findings.filter((f) => f.severity === "info")
   return (
@@ -88,8 +90,8 @@ export function AttackCard({ mapping }: { mapping: AttackMapping }) {
         )}
         {issues.length > 0 && (
           <ul className="space-y-1 text-sm">
-            {issues.map((f, i) => (
-              <li key={i} className="flex items-start gap-2">
+            {issues.map((f) => (
+              <li key={`${f.check}:${f.tag ?? ""}:${f.message}`} className="flex items-start gap-2">
                 <AlertTriangle className={`mt-0.5 size-4 shrink-0 ${f.severity === "error" ? "text-destructive" : "text-amber-600"}`} />
                 <span>{f.message}</span>
               </li>

@@ -16,7 +16,7 @@ import type { ClassifyResponse } from "@/lib/types"
 
 type Phase = "empty" | "loading" | "done"
 
-export function Workbench({ onLoggedOut }: { onLoggedOut: () => void }) {
+export function Workbench({ onLoggedOut }: Readonly<{ onLoggedOut: () => void }>) {
   const [rule, setRule] = useState("")
   const [phase, setPhase] = useState<Phase>("empty")
   const [result, setResult] = useState<ClassifyResponse | null>(null)

@@ -60,12 +60,17 @@ def test_classify_leaf(field, value_type, values, modifiers, logsource, tier, ca
 
 def test_tool_hit_on_process_field_stays_tier_4_with_annotation() -> None:
     cls = classify_leaf("Image", "string", ("\\mimikatz.exe",), ("endswith",), WIN_PROC)
-    assert cls.tier == 4 and cls.note and "recognized tool: mimikatz" in cls.note and cls.confidence == "high"
+    assert cls.tier == 4
+    assert cls.note
+    assert "recognized tool: mimikatz" in cls.note
+    assert cls.confidence == "high"
 
 
 def test_tool_hit_on_pe_metadata_is_tier_5_medium() -> None:
     cls = classify_leaf("OriginalFileName", "string", ("SharpHound.exe",), (), WIN_PROC)
-    assert cls.tier == 5 and cls.confidence == "medium" and "sharphound" in (cls.note or "")
+    assert cls.tier == 5
+    assert cls.confidence == "medium"
+    assert "sharphound" in (cls.note or "")
 
 
 def test_tool_names_match_on_token_boundaries() -> None:
@@ -75,7 +80,8 @@ def test_tool_names_match_on_token_boundaries() -> None:
 
 def test_imphash_note_and_routing_flag() -> None:
     cls = classify_leaf("Hashes", "string", ("IMPHASH=abc",), ("contains",), WIN_PROC)
-    assert cls.note and "imphash" in cls.note.lower()
+    assert cls.note
+    assert "imphash" in cls.note.lower()
     assert classify_leaf("Provider_Name", "string", ("x",), (), WIN_PROC).routing is True
     assert classify_leaf("EventID", "string", ("4688",), (), WIN_PROC).routing is True
     assert classify_leaf("CommandLine", "string", ("x",), (), WIN_PROC).routing is False
@@ -95,4 +101,6 @@ def test_keyword_search_is_low_confidence() -> None:
 
 def test_tool_list_loads_and_is_lowercase() -> None:
     names = load_tool_list()
-    assert "mimikatz" in names and all(n == n.lower() for n in names) and len(names) > 30
+    assert "mimikatz" in names
+    assert all(n == n.lower() for n in names)
+    assert len(names) > 30

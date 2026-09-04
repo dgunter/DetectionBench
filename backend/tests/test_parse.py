@@ -60,7 +60,8 @@ def test_oversize_rejected_before_yaml_parses() -> None:
 
 def test_yaml_error_carries_line_and_column() -> None:
     err = _parse_error("title: x\n  bad: [unclosed")
-    assert err.detail and err.detail.startswith("line 2, column")
+    assert err.detail
+    assert err.detail.startswith("line 2, column")
 
 
 def test_lone_correlation_rule_rejected() -> None:
@@ -113,17 +114,23 @@ def test_sysnative_tree_shape_and_selection_names() -> None:
     parsed = parse_rule((FIXTURES / "artifact_sysnative_filters.yml").read_text())
     ir = parsed.ir
     root = ir.root
-    assert isinstance(root, Boolean) and root.op == "and"
+    assert isinstance(root, Boolean)
+    assert root.op == "and"
     assert [c.op for c in root.children if isinstance(c, Boolean)] == ["or", "not", "not"]
     selection, not_ngen, not_xampp = root.children
-    assert isinstance(selection, Boolean) and selection.selection == "selection"
+    assert isinstance(selection, Boolean)
+    assert selection.selection == "selection"
     # list-of-maps selection is an OR of its two maps
     assert [c.field for c in selection.children if isinstance(c, Criterion)] == ["CommandLine", "Image"]
     # `1 of filter_main_*` resolved to the concrete selection, which is an AND of its keys
     ngen = not_ngen.children[0]
-    assert isinstance(ngen, Boolean) and ngen.op == "and" and ngen.selection == "filter_main_ngen"
+    assert isinstance(ngen, Boolean)
+    assert ngen.op == "and"
+    assert ngen.selection == "filter_main_ngen"
     xampp = not_xampp.children[0]
-    assert isinstance(xampp, Boolean) and xampp.op == "and" and xampp.selection == "filter_optional_xampp"
+    assert isinstance(xampp, Boolean)
+    assert xampp.op == "and"
+    assert xampp.selection == "filter_optional_xampp"
     # `contains|all` over three values is an AND of three criteria with both modifiers recovered
     assert [c.modifiers for c in xampp.children if isinstance(c, Criterion)] == [("contains", "all")] * 3
     assert ir.selections == ("selection", "filter_main_ngen", "filter_optional_xampp")
@@ -141,7 +148,9 @@ def test_original_values_survive_modifiers() -> None:
 def test_value_list_expands_to_one_leaf_per_value() -> None:
     parsed = parse_rule((FIXTURES / "domain_dns_xmr_mining.yml").read_text())
     root = parsed.ir.root
-    assert isinstance(root, Boolean) and root.op == "or" and root.selection == "selection"
+    assert isinstance(root, Boolean)
+    assert root.op == "or"
+    assert root.selection == "selection"
     leaves = list(iter_criteria(root))
     assert len(leaves) == 20
     assert leaves[0].values == ("pool.minexmr.com",)
@@ -168,21 +177,30 @@ level: low
 """
     parsed = parse_rule(text)
     by_field = {c.field: c for c in iter_criteria(parsed.ir.root)}
-    assert by_field[None].value_type == "string" and by_field[None].category == "keyword"
-    assert by_field["a"].value_type == "regex" and by_field["a"].modifiers == ("re",)
+    assert by_field[None].value_type == "string"
+    assert by_field[None].category == "keyword"
+    assert by_field["a"].value_type == "regex"
+    assert by_field["a"].modifiers == ("re",)
     assert by_field["d"].value_type == "number"
-    assert by_field["e"].value_type == "expansion" and by_field["e"].values == ("cmd",)
-    assert by_field["f"].value_type == "expansion" and by_field["f"].values == ("-x",)
-    assert by_field["g"].value_type == "cidr" and by_field["g"].values == ("10.0.0.0/8",)
-    assert by_field["h"].value_type == "fieldref" and by_field["h"].values == ("Image",)
-    assert by_field["i"].value_type == "null" and by_field["i"].values == ("null",)
-    assert by_field["j"].value_type == "bool" and by_field["j"].values == ("true",)
+    assert by_field["e"].value_type == "expansion"
+    assert by_field["e"].values == ("cmd",)
+    assert by_field["f"].value_type == "expansion"
+    assert by_field["f"].values == ("-x",)
+    assert by_field["g"].value_type == "cidr"
+    assert by_field["g"].values == ("10.0.0.0/8",)
+    assert by_field["h"].value_type == "fieldref"
+    assert by_field["h"].values == ("Image",)
+    assert by_field["i"].value_type == "null"
+    assert by_field["i"].values == ("null",)
+    assert by_field["j"].value_type == "bool"
+    assert by_field["j"].values == ("true",)
 
 
 def test_legacy_condition_list_is_ored() -> None:
     text = BASE + "detection:\n  a:\n    Image: x\n  b:\n    CommandLine: y\n  condition:\n    - a\n    - b\nlevel: low\n"
     parsed = parse_rule(text)
-    assert isinstance(parsed.ir.root, Boolean) and parsed.ir.root.op == "or"
+    assert isinstance(parsed.ir.root, Boolean)
+    assert parsed.ir.root.op == "or"
     assert parsed.ir.condition == "a | b"
 
 
@@ -191,4 +209,5 @@ def test_ir_serializes_to_plain_json_types() -> None:
 
     parsed = parse_rule((FIXTURES / "artifact_sysnative_filters.yml").read_text())
     encoded = json.dumps(parsed.ir.to_dict())
-    assert '"kind": "boolean"' in encoded and '"tier_name": "Host/network artifacts"' in encoded
+    assert '"kind": "boolean"' in encoded
+    assert '"tier_name": "Host/network artifacts"' in encoded

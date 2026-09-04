@@ -4,7 +4,7 @@ import { ApiError, api } from "@/lib/api"
 import { describeAuthError, postAccessRedirect, tokenFromSearch } from "@/lib/session"
 
 /** /access?token=… — submit once, set the cookie, land on / with the token gone from the URL. */
-export function AccessLink({ onAuthenticated }: { onAuthenticated: () => void }) {
+export function AccessLink({ onAuthenticated }: Readonly<{ onAuthenticated: () => void }>) {
   const { search } = useLocation()
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)

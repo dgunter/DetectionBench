@@ -28,7 +28,8 @@ def test_every_table_row_is_reported_once_for_the_bad_fixture() -> None:
     assert by_check["level"].status == "error"
     assert by_check["falsepositives"].status == "warning"
     assert by_check["logsource"].status == "warning"  # service only
-    assert by_check["selections"].status == "warning" and "unused_selection" in (by_check["selections"].message or "")
+    assert by_check["selections"].status == "warning"
+    assert "unused_selection" in (by_check["selections"].message or "")
     assert by_check["attack_techniques"].status == "error"  # t9999 unknown outranks t1562.002 retired
     assert by_check["attack_tactics"].status == "error"  # not-a-tactic outranks the defense-evasion rename
     assert by_check["attack_software_groups"].status == "info"
@@ -37,28 +38,36 @@ def test_every_table_row_is_reported_once_for_the_bad_fixture() -> None:
 
     checks = [f.check for f in result.findings]
     # No double-reporting: pySigma's id/status/level errors are absorbed by the raw-dict rows.
-    assert checks.count("id") == 1 and checks.count("status") == 1 and checks.count("level") == 1
-    assert "attack_technique_retired" in checks and "attack_technique_unknown" in checks
-    assert "attack_tactic_renamed" in checks and "attack_tactic_unknown" in checks
+    assert checks.count("id") == 1
+    assert checks.count("status") == 1
+    assert checks.count("level") == 1
+    assert "attack_technique_retired" in checks
+    assert "attack_technique_unknown" in checks
+    assert "attack_tactic_renamed" in checks
+    assert "attack_tactic_unknown" in checks
     assert checks.count("attack_software_group_tag") == 2
     retired = next(f for f in result.findings if f.check == "attack_technique_retired")
     assert "replaced by T1685.001" in retired.message
     assert all(f.confidence == "high" for f in result.findings)
-    assert result.count("error") >= 4 and result.value.startswith(f"{result.count('error')} errors")
+    assert result.count("error") >= 4
+    assert result.value.startswith(f"{result.count('error')} errors")
 
 
 def test_clean_rule_passes_every_row() -> None:
     result = _lint((FIXTURES / "domain_dns_xmr_mining.yml").read_text(encoding="utf-8"))
     assert all(c.status == "pass" for c in result.checks), [c for c in result.checks if c.status != "pass"]
-    assert result.findings == () and result.value == "clean"
+    assert result.findings == ()
+    assert result.value == "clean"
     d = result.to_dict()
-    assert d["provenance"] == "deterministic:metadata" and d["passed"] == len(CHECK_TABLE)
+    assert d["provenance"] == "deterministic:metadata"
+    assert d["passed"] == len(CHECK_TABLE)
 
 
 def test_missing_fields_are_reported_not_crashed() -> None:
     result = _lint("title: t\nlogsource:\n  product: windows\ndetection:\n  sel:\n    Image: x\n  condition: sel\n")
     by_check = {c.check: c for c in result.checks}
-    assert by_check["id"].status == "error" and "missing" in (by_check["id"].message or "")
+    assert by_check["id"].status == "error"
+    assert "missing" in (by_check["id"].message or "")
     assert by_check["level"].status == "error"
     assert by_check["status"].status == "warning"
     assert by_check["description"].status == "warning"

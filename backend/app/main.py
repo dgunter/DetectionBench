@@ -64,7 +64,7 @@ class Health(BaseModel):
     attack_technique_count: int
 
 
-@app.get("/api/health", response_model=Health)
+@app.get("/api/health")
 def health(request: Request) -> Health:
     attack = request.app.state.attack
     return Health(

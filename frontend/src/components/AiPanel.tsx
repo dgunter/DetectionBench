@@ -40,7 +40,7 @@ interface Props {
 }
 
 /** Right-hand AI second-opinion panel. Output is rendered as plain text only. */
-export function AiPanel({ hasRule, rule, onUseCandidate }: Props) {
+export function AiPanel({ hasRule, rule, onUseCandidate }: Readonly<Props>) {
   const [model, setModel] = useState<ModelKey>("opus")
   const [busy, setBusy] = useState<LlmAction | null>(null)
   const [result, setResult] = useState<PanelResult | null>(null)
