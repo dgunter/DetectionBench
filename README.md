@@ -105,7 +105,7 @@ was reached, not how good the rule is) and **provenance**:
 v1 is static: it reasons about what the rule *would* match from its text and
 structure alone. **Dynamic analysis is not built.** The roadmap version
 generates and labels test telemetry, executes the rule against it, and reports
-TP / FP / TN / FN, precision, recall and F1. The same IR drives both: static
+TP / FP / TN / FN, and from those precision, recall and the F1 score. The same IR drives both: static
 analysis walks it, dynamic analysis will execute it. Until then the Scope &
 match card is deliberately symbolic, because a made-up match rate is worse
 than none.
